@@ -34,24 +34,5 @@ public class Address
     	return clusterRelationship;
     }
     
-    //Setters
-    
-    // START SNIPPET: override
-    @Override
-    public boolean equals( Object o )
-    {
-        return o instanceof Address &&
-                underlyingNode.equals( ( (Address)o ).getUnderlyingNode() );
-    }
-
-    @Override
-    public String toString()
-    {
-        return "Address[" + getAddress() + "]";
-    }
-    // END SNIPPET: override
-    
-    
-    //Underlying node
     private  Node underlyingNode = null;
 }

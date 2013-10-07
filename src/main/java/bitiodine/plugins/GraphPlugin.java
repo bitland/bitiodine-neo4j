@@ -7,12 +7,16 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 public interface GraphPlugin {
-	public Node addAddressNode( GraphDatabaseService graphDb, String address);
-	public Node addClusterNode( GraphDatabaseService graphDb, String cluster_id);
+	Node addAddressNode( GraphDatabaseService graphDb, String address);
+	Node addClusterNode( GraphDatabaseService graphDb, String cluster_id);
 	
 	//Methods for Address Nodes
-	public Relationship linkAddressToCluster(GraphDatabaseService graphDb, 
+	Relationship linkAddressToCluster(GraphDatabaseService graphDb, 
 			String address, String cluster_id);
-
+	
+	Node addTransactionNode(GraphDatabaseService graphDb, String txHash,
+			List<String> txIns, List<Long> amountsIn, List<String> txPrevs,
+			List<String> txOuts, List<Long> amountsOut, String block_hash,
+			Long timestamp);
 	
 }

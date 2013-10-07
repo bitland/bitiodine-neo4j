@@ -24,6 +24,7 @@ public class ClusterLocalServiceImpl implements ClusterLocalService {
 						created.setProperty( "cluster", properties.get( "cluster" ) );	
 					}
 		    };
+		    tx.success();
 		}
 	}
 	

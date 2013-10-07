@@ -27,10 +27,10 @@ public class AddressLocalServiceImpl implements AddressLocalService {
 						@Override
 						protected void initialize(Node created,
 								Map<String, Object> properties) {
-							created
-							.setProperty( "address", properties.get( "address" ) );	
+							created.setProperty( "address", properties.get( "address" ) );	
 						}
-		    		};
+		    };
+		    tx.success();
 		}
 	}
 

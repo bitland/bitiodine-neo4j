@@ -20,14 +20,15 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
 	public TransactionLocalServiceImpl(GraphDatabaseService graphDb) {
 		this.graphDb=graphDb;
 		try ( org.neo4j.graphdb.Transaction tx = graphDb.beginTx() ) {
-		    uniqueTransactionFactory = new 
+			this.uniqueTransactionFactory = new 
 		    		UniqueFactory.UniqueNodeFactory( graphDb, "transactions" ) {
-					@Override
-					protected void initialize(Node created,
-							Map<String, Object> properties) {
-						created.setProperty( "tx-hash", properties.get( "tx-hash" ) );	
-					}
+						@Override
+						protected void initialize(Node created,
+								Map<String, Object> properties) {
+							created.setProperty( "tx-hash", properties.get( "tx-hash" ) );	
+						}
 		    };
+		    tx.success();
 		}
 	}
 	

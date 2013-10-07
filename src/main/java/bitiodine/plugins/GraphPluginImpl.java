@@ -71,7 +71,7 @@ public class GraphPluginImpl extends ServerPlugin implements GraphPlugin
 		return a.getClusterRelationship();
 	}
 	
-	//@Override
+	@Override
 	@Name("addTransactionNode")
 	@Description("Adds a Transaction node to graph db")
     @PluginTarget( GraphDatabaseService.class )
@@ -94,8 +94,9 @@ public class GraphPluginImpl extends ServerPlugin implements GraphPlugin
 			@Parameter( name = "timestamp" ) Long timestamp){
 		
 		//TODO Check input parameters
-		Transaction t = TransactionLocalServiceUtil.getOrCreateTransaction(graphDb, txHash, txIns, 
-				amountsIn, txPrevs, txOuts, amountsOut, block_hash, timestamp);
+		Transaction t = TransactionLocalServiceUtil.getOrCreateTransaction(graphDb, 
+				txHash, txIns, amountsIn, txPrevs, txOuts, amountsOut, 
+				block_hash, timestamp);
 		
 		return t.getUnderlyingNode();
 	}
