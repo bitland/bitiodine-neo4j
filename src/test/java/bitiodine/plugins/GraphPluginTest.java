@@ -68,5 +68,5 @@ public class GraphPluginTest extends TestCase
         });
     }
     
-    private static final String DB_PATH = "target/neo4j-test-db";
+    private static final String DB_PATH = "target/neo4j-community-2.0.0-M05/data/graph.db";
 }
