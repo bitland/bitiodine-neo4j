@@ -48,15 +48,26 @@
             		<goals>
               			<goal>exec</goal>
             		</goals>
+            		<configuration>
+          				<executable>deploy-and-restart.sh</executable>
+          				<workingDirectory>.</workingDirectory>
+          				<arguments></arguments>
+        			</configuration>
+          		</execution>
+          		<execution>
+          		    <id>shutdown-neo4j</id>
+          			<phase>post-clean</phase>
+            		<goals>
+              			<goal>exec</goal>
+            		</goals>
+            		<configuration>
+          				<executable>neo4j-community-2.0.0-M05/bin/neo4j</executable>
+          				<workingDirectory>.</workingDirectory>
+          				<commandlineArgs>stop</commandlineArgs>
+        			</configuration>
           		</execution>
         	</executions>
-        	<configuration>
-          		<executable>deploy-and-restart.sh</executable>
-          		<!-- optional -->
-          		<workingDirectory>.</workingDirectory>
-          		<arguments> </arguments>
-        </configuration>
-      </plugin>
+      	</plugin>
   	</plugins>
   </build>
 

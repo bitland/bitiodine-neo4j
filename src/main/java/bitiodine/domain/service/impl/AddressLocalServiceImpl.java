@@ -1,9 +1,13 @@
 package bitiodine.domain.service.impl;
 
+import java.util.Map;
+
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.index.UniqueFactory;
 
 import bitiodine.domain.model.Address;
 import bitiodine.domain.model.Cluster;
@@ -17,10 +21,21 @@ public class AddressLocalServiceImpl implements AddressLocalService {
 	
 	public AddressLocalServiceImpl(GraphDatabaseService graphDb) {
 		this.graphDb=graphDb;
+		try ( Transaction tx = graphDb.beginTx() ) {
+		    this.uniqueAddressFactory = new 
+		    		UniqueFactory.UniqueNodeFactory( graphDb, "addresses" ) {
+						@Override
+						protected void initialize(Node created,
+								Map<String, Object> properties) {
+							created
+							.setProperty( "address", properties.get( "address" ) );	
+						}
+		    		};
+		}
 	}
 
 	@Override
-	public Address updateAddress(Address address) {
+	public Address updateAddress(String address) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -32,17 +47,15 @@ public class AddressLocalServiceImpl implements AddressLocalService {
 	}
 
 	@Override
-	public Address addAddress(String address) {  	
+	public Address getOrCreateAddress(String address) {  	
 		Address a = null;
 		try ( Transaction tx = graphDb.beginTx() ) {
-    		// Create node
-			//TODO Check if the address is already present
-    		Node n = graphDb.createNode();
+    		// get-or-create node
+			Node n = uniqueAddressFactory.getOrCreate( "address", address );
     		n.addLabel(NodeTypes.ADDRESS);
-    		n.setProperty("address", address);
     		a = new Address(n);
-    		tx.success();
-        }
+			tx.success();
+		}
 		return a;
 	}
 
@@ -50,11 +63,16 @@ public class AddressLocalServiceImpl implements AddressLocalService {
 	public Address linkAddressToCluster(String address, String cluster_id) {
 		Address a = null;
 		try ( Transaction tx = graphDb.beginTx() ) {
-			a = AddressLocalServiceUtil.findAddressByAddress(this.graphDb, address);
-			Cluster c = ClusterLocalServiceUtil.findClusterById(this.graphDb, cluster_id);
-			Relationship clusterRelationship = a.getUnderlyingNode().
-					createRelationshipTo(c.getUnderlyingNode(), RelTypes.CLUSTER);
-			a.setClusterRelationship(clusterRelationship);
+			a = AddressLocalServiceUtil.getOrCreateAddress(this.graphDb, address);
+			Cluster c = ClusterLocalServiceUtil.getOrCreateCluster(this.graphDb, cluster_id);
+			
+			Relationship clusterRelationship = a.getUnderlyingNode()
+					.getSingleRelationship(RelTypes.CLUSTER,Direction.OUTGOING);
+			
+			if ( clusterRelationship == null)
+				clusterRelationship = a.getUnderlyingNode()
+					.createRelationshipTo(c.getUnderlyingNode(), RelTypes.CLUSTER);
+			
 			tx.success();
 		}
 		return a;
@@ -73,5 +91,6 @@ public class AddressLocalServiceImpl implements AddressLocalService {
 	}
 	
 	private GraphDatabaseService graphDb = null;
+	private UniqueFactory<Node> uniqueAddressFactory = null;
 }
 

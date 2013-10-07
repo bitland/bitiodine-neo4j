@@ -4,8 +4,8 @@ import bitiodine.domain.model.Address;
 
 public interface AddressLocalService {
 	//CRUD
-	public Address addAddress(String address);
-	public Address updateAddress(Address address);
+	public Address getOrCreateAddress(String address);
+	public Address updateAddress(String address);
 	public Address deleteAddress(String address);
 	
 	//Other operations

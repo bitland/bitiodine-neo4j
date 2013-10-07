@@ -1,8 +1,11 @@
 package bitiodine.domain.service.impl;
 
+import java.util.Map;
+
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.index.UniqueFactory;
 
 import bitiodine.domain.model.Cluster;
 import bitiodine.domain.model.NodeTypes;
@@ -12,16 +15,24 @@ public class ClusterLocalServiceImpl implements ClusterLocalService {
 	
 	public ClusterLocalServiceImpl(GraphDatabaseService graphDb) {
 		this.graphDb=graphDb;
+		try ( Transaction tx = graphDb.beginTx() ) {
+		    uniqueClusterFactory = new 
+		    		UniqueFactory.UniqueNodeFactory( graphDb, "clusters" ) {
+					@Override
+					protected void initialize(Node created,
+							Map<String, Object> properties) {
+						created.setProperty( "cluster", properties.get( "cluster" ) );	
+					}
+		    };
+		}
 	}
 	
 	@Override
-	public Cluster addCluster(String cluster_id) {
+	public Cluster getOrCreateCluster(String cluster_id) {
 		Cluster c = null;
 		try ( Transaction tx = graphDb.beginTx() ) {
-			//TODO Check if the cluster is already present
-    		Node n = graphDb.createNode();
+			Node n = uniqueClusterFactory.getOrCreate( "cluster", cluster_id );
     		n.addLabel(NodeTypes.CLUSTER);
-    		n.setProperty("cluster", cluster_id);
     		c = new Cluster(n);
     		tx.success();
         }
@@ -44,5 +55,6 @@ public class ClusterLocalServiceImpl implements ClusterLocalService {
 	}
 	
 	private GraphDatabaseService graphDb = null;
+	private UniqueFactory<Node> uniqueClusterFactory = null;
 
 }

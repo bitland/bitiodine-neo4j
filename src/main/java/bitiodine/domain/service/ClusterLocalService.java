@@ -4,7 +4,7 @@ import bitiodine.domain.model.Cluster;
 
 public interface ClusterLocalService {
 	//CRUD
-	public Cluster addCluster(String cluster_id);
+	public Cluster getOrCreateCluster(String cluster_id);
 	
 	//Other operations
 	

@@ -7,8 +7,8 @@ import bitiodine.domain.service.impl.ClusterLocalServiceImpl;
 
 public class ClusterLocalServiceUtil {
 	
-	public static Cluster addCluster(GraphDatabaseService graphDb, String cluster_id){
-		return getService(graphDb).addCluster(cluster_id);
+	public static Cluster getOrCreateCluster(GraphDatabaseService graphDb, String cluster_id){
+		return getService(graphDb).getOrCreateCluster(cluster_id);
 	}
 	
 	public static Cluster findClusterById(GraphDatabaseService graphDb, String cluster_id){

@@ -4,5 +4,8 @@ import org.neo4j.graphdb.RelationshipType;
 
 public enum RelTypes implements RelationshipType{
 	SAMEOWNER,
-	CLUSTER
+	CLUSTER,
+	TXIN,
+	TXOUT,
+	TXPREV
 }

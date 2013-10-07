@@ -1,5 +1,7 @@
 package bitiodine.plugins;
 
+import java.util.List;
+
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -11,5 +13,6 @@ public interface GraphPlugin {
 	//Methods for Address Nodes
 	public Relationship linkAddressToCluster(GraphDatabaseService graphDb, 
 			String address, String cluster_id);
+
 	
 }

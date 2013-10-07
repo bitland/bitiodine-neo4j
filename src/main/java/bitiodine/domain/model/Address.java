@@ -1,14 +1,11 @@
 package bitiodine.domain.model;
 
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 public class Address
-{
-    public Address( String address ) {
-        this.address = address;
-    }
-    
+{    
     public Address( Node underlyingNode ) {
         this.underlyingNode = underlyingNode;
     }
@@ -16,35 +13,30 @@ public class Address
     public Node getUnderlyingNode() {
     	return this.underlyingNode;
     }
-    
-    public Relationship getClusterRelationship(){
-    	return this.clusterRelationship;
-    }
-    
-    public void setClusterRelationship(Relationship clusterRelationship) {
-		this.clusterRelationship = clusterRelationship;
-	}
 
 	// Getters: delegate-to-the-node
     public String getAddress() {	
-    	if (underlyingNode != null)
-        	address = (String)underlyingNode.getProperty( "address" );
+    	String address = null;
+    	try (org.neo4j.graphdb.Transaction tx = underlyingNode.getGraphDatabase().beginTx()){
+    		address = (String)underlyingNode.getProperty( "address" );
+    		tx.success();
+    	}
     	return address;
     }
     
-    public Cluster getCluster() {
-    	return null;
+    public Relationship getClusterRelationship(){
+    	Relationship clusterRelationship = null;
+    	try (org.neo4j.graphdb.Transaction tx = underlyingNode.getGraphDatabase().beginTx()){
+    		clusterRelationship = this.underlyingNode
+    				.getSingleRelationship(RelTypes.CLUSTER,Direction.OUTGOING);
+    		tx.success();
+    	}
+    	return clusterRelationship;
     }
-
-    // Setters
+    
+    //Setters
     
     // START SNIPPET: override
-    @Override
-    public int hashCode()
-    {
-        return underlyingNode.hashCode();
-    }
-
     @Override
     public boolean equals( Object o )
     {
@@ -57,15 +49,9 @@ public class Address
     {
         return "Address[" + getAddress() + "]";
     }
-
     // END SNIPPET: override
     
     
     //Underlying node
     private  Node underlyingNode = null;
-    private Relationship clusterRelationship = null;
-    
-	//Local address fiels
-    private String address = null;
-
 }

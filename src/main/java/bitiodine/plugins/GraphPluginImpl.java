@@ -18,6 +18,8 @@
  */
 package bitiodine.plugins;
 
+import java.util.List;
+
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -30,9 +32,10 @@ import org.neo4j.server.plugins.Source;
 
 import bitiodine.domain.model.Address;
 import bitiodine.domain.model.Cluster;
+import bitiodine.domain.model.Transaction;
 import bitiodine.domain.service.AddressLocalServiceUtil;
 import bitiodine.domain.service.ClusterLocalServiceUtil;
-
+import bitiodine.domain.service.TransactionLocalServiceUtil;
 
 @Description( "An extension to the Neo4j Server for feeding neo4j graph db" )
 public class GraphPluginImpl extends ServerPlugin implements GraphPlugin
@@ -44,7 +47,7 @@ public class GraphPluginImpl extends ServerPlugin implements GraphPlugin
     public Node addAddressNode(	@Source GraphDatabaseService graphDb, 
     		@Description( "The address of the node to add." )
     		@Parameter( name = "address" ) String address) {
-    	Address a = AddressLocalServiceUtil.addAddress(graphDb, address);
+    	Address a = AddressLocalServiceUtil.getOrCreateAddress(graphDb, address);
     	return a.getUnderlyingNode();
     }
     
@@ -55,16 +58,46 @@ public class GraphPluginImpl extends ServerPlugin implements GraphPlugin
 	public Node addClusterNode( @Source GraphDatabaseService graphDb,
 			@Description( "The id of the cluster to add." )
 			@Parameter( name = "cluster_id" ) String cluster_id) {
-		Cluster c = ClusterLocalServiceUtil.addCluster(graphDb, cluster_id);
+		Cluster c = ClusterLocalServiceUtil.getOrCreateCluster(graphDb, cluster_id);
 		return c.getUnderlyingNode();
 	}
 
 	@Override
-    @Name("linkAddressToCluster")
-    @Description("Adds a Cluster node to graph db")
+    //@Name("linkAddressToCluster")
+    //@Description("Adds a Cluster node to graph db")
+    //@PluginTarget( GraphDatabaseService.class )
 	public Relationship linkAddressToCluster(GraphDatabaseService graphDb, String address, String cluster_id) {
 		Address a = AddressLocalServiceUtil.linkAddressToCluster(graphDb, address, cluster_id);
 		return a.getClusterRelationship();
+	}
+	
+	//@Override
+	@Name("addTransactionNode")
+	@Description("Adds a Transaction node to graph db")
+    @PluginTarget( GraphDatabaseService.class )
+	public Node addTransactionNode( @Source GraphDatabaseService graphDb, 
+			@Description( "Transaction hash" )
+			@Parameter( name = "tx-hash" ) String txHash,
+			@Description( "Input addresses" )
+			@Parameter( name = "tx-ins" ) List<String> txIns, 
+			@Description( "Input amounts in Satoshis" )
+			@Parameter( name = "amounts-in" ) List<Long> amountsIn,
+			@Description( "Input transactions hashes" )
+			@Parameter( name = "tx-prevs") List<String> txPrevs,
+			@Description( "Output addresses" )
+			@Parameter( name = "tx-outs" ) List<String> txOuts,
+			@Description( "Output amounts in Satoshis" )
+			@Parameter( name = "amounts-out" ) List<Long> amountsOut,
+			@Description( "Hash of the block where the transaction is included" )
+			@Parameter( name = "block-hash" ) String block_hash,
+			@Description( "Timestamp of the transaction" )
+			@Parameter( name = "timestamp" ) Long timestamp){
+		
+		//TODO Check input parameters
+		Transaction t = TransactionLocalServiceUtil.getOrCreateTransaction(graphDb, txHash, txIns, 
+				amountsIn, txPrevs, txOuts, amountsOut, block_hash, timestamp);
+		
+		return t.getUnderlyingNode();
 	}
     
 }
