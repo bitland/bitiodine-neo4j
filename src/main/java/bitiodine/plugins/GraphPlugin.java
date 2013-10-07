@@ -8,9 +8,9 @@ import org.neo4j.graphdb.Relationship;
 
 public interface GraphPlugin {
 	Node addAddressNode( GraphDatabaseService graphDb, String address);
+	
 	Node addClusterNode( GraphDatabaseService graphDb, String cluster_id);
 	
-	//Methods for Address Nodes
 	Relationship linkAddressToCluster(GraphDatabaseService graphDb, 
 			String address, String cluster_id);
 	

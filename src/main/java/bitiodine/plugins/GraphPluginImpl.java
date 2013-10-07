@@ -42,7 +42,7 @@ public class GraphPluginImpl extends ServerPlugin implements GraphPlugin
 {	
 	@Override
     @Name("addAddressNode")
-    @Description("Adds an Address node to graph db")
+    @Description("Adds an Address node to graph db - get-or-create")
     @PluginTarget( GraphDatabaseService.class )
     public Node addAddressNode(	@Source GraphDatabaseService graphDb, 
     		@Description( "The address of the node to add." )
@@ -53,27 +53,31 @@ public class GraphPluginImpl extends ServerPlugin implements GraphPlugin
     
 	@Override
     @Name("addClusterNode")
-    @Description("Adds a Cluster node to graph db")
+    @Description("Adds a Cluster node to graph db - get-or-create")
     @PluginTarget( GraphDatabaseService.class )
 	public Node addClusterNode( @Source GraphDatabaseService graphDb,
 			@Description( "The id of the cluster to add." )
-			@Parameter( name = "cluster_id" ) String cluster_id) {
-		Cluster c = ClusterLocalServiceUtil.getOrCreateCluster(graphDb, cluster_id);
+			@Parameter( name = "cluster-id" ) String clusterId) {
+		Cluster c = ClusterLocalServiceUtil.getOrCreateCluster(graphDb, clusterId);
 		return c.getUnderlyingNode();
 	}
 
 	@Override
-    //@Name("linkAddressToCluster")
-    //@Description("Adds a Cluster node to graph db")
-    //@PluginTarget( GraphDatabaseService.class )
-	public Relationship linkAddressToCluster(GraphDatabaseService graphDb, String address, String cluster_id) {
-		Address a = AddressLocalServiceUtil.linkAddressToCluster(graphDb, address, cluster_id);
+    @Name("linkAddressToCluster")
+    @Description("Links an Address node to a Cluster node - get-or-create")
+    @PluginTarget( GraphDatabaseService.class )
+	public Relationship linkAddressToCluster(@Source GraphDatabaseService graphDb, 
+			@Description( "The address to link." )
+			@Parameter( name = "address" ) String address, 
+			@Description( "The id of the cluster to link to." )
+			@Parameter( name = "cluster-id" ) String clusterId) {
+		Address a = AddressLocalServiceUtil.linkAddressToCluster(graphDb, address, clusterId);
 		return a.getClusterRelationship();
 	}
 	
 	@Override
 	@Name("addTransactionNode")
-	@Description("Adds a Transaction node to graph db")
+	@Description("Adds a Transaction node to graph db - get-or-create")
     @PluginTarget( GraphDatabaseService.class )
 	public Node addTransactionNode( @Source GraphDatabaseService graphDb, 
 			@Description( "Transaction hash" )
@@ -88,15 +92,15 @@ public class GraphPluginImpl extends ServerPlugin implements GraphPlugin
 			@Parameter( name = "tx-outs" ) List<String> txOuts,
 			@Description( "Output amounts in Satoshis" )
 			@Parameter( name = "amounts-out" ) List<Long> amountsOut,
-			@Description( "Hash of the block where the transaction is included" )
-			@Parameter( name = "block-hash" ) String block_hash,
+			@Description( "Hash of the block where the transaction is timestamped" )
+			@Parameter( name = "block-hash" ) String blockHash,
 			@Description( "Timestamp of the transaction" )
 			@Parameter( name = "timestamp" ) Long timestamp){
 		
 		//TODO Check input parameters
 		Transaction t = TransactionLocalServiceUtil.getOrCreateTransaction(graphDb, 
 				txHash, txIns, amountsIn, txPrevs, txOuts, amountsOut, 
-				block_hash, timestamp);
+				blockHash, timestamp);
 		
 		return t.getUnderlyingNode();
 	}
