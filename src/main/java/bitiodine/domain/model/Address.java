@@ -1,10 +1,7 @@
-/**
- *
- */
-
 package bitiodine.domain.model;
 
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 
 public class Address
 {
@@ -20,11 +17,23 @@ public class Address
     	return this.underlyingNode;
     }
     
-    // Getters: delegate-to-the-node
+    public Relationship getClusterRelationship(){
+    	return this.clusterRelationship;
+    }
+    
+    public void setClusterRelationship(Relationship clusterRelationship) {
+		this.clusterRelationship = clusterRelationship;
+	}
+
+	// Getters: delegate-to-the-node
     public String getAddress() {	
     	if (underlyingNode != null)
         	address = (String)underlyingNode.getProperty( "address" );
     	return address;
+    }
+    
+    public Cluster getCluster() {
+    	return null;
     }
 
     // Setters
@@ -54,6 +63,7 @@ public class Address
     
     //Underlying node
     private  Node underlyingNode = null;
+    private Relationship clusterRelationship = null;
     
 	//Local address fiels
     private String address = null;
