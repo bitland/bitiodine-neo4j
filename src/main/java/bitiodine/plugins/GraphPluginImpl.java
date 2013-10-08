@@ -85,13 +85,13 @@ public class GraphPluginImpl extends ServerPlugin implements GraphPlugin
 			@Description( "Input addresses" )
 			@Parameter( name = "tx-ins" ) List<String> txIns, 
 			@Description( "Input amounts in Satoshis" )
-			@Parameter( name = "amounts-in" ) List<Long> amountsIn,
+			@Parameter( name = "amounts-in" ) List<Integer> amountsIn,
 			@Description( "Input transactions hashes" )
 			@Parameter( name = "tx-prevs") List<String> txPrevs,
 			@Description( "Output addresses" )
 			@Parameter( name = "tx-outs" ) List<String> txOuts,
 			@Description( "Output amounts in Satoshis" )
-			@Parameter( name = "amounts-out" ) List<Long> amountsOut,
+			@Parameter( name = "amounts-out" ) List<Integer> amountsOut,
 			@Description( "Hash of the block where the transaction is timestamped" )
 			@Parameter( name = "block-hash" ) String blockHash,
 			@Description( "Timestamp of the transaction" )

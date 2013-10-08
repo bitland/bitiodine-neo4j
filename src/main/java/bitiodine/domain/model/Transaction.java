@@ -2,15 +2,16 @@ package bitiodine.domain.model;
 
 import org.neo4j.graphdb.Node;
 
-public class Transaction {
+import bitiodine.domain.model.neo4j.Neo4jDomainEntity;
+
+public class Transaction extends Neo4jDomainEntity{
 	
 	public Transaction( Node underlyingNode ) {
-        this.underlyingNode = underlyingNode;
+        super(underlyingNode);
     }
 	
-	public Node getUnderlyingNode() {
-    	return this.underlyingNode;
-    }
-	
-	private  Node underlyingNode = null;
+	public String getHash(){
+    	return (String) super.getProperty("tx-hash");
+	}
+
 }

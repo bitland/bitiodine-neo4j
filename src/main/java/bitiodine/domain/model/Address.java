@@ -4,35 +4,29 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-public class Address
-{    
-    public Address( Node underlyingNode ) {
-        this.underlyingNode = underlyingNode;
-    }
+import bitiodine.domain.model.neo4j.Neo4jDomainEntity;
+import bitiodine.domain.model.neo4j.RelTypes;
 
-    public Node getUnderlyingNode() {
-    	return this.underlyingNode;
-    }
+public class Address extends Neo4jDomainEntity
+{    
+
+	public Address(Node underlyingNode) {
+		super(underlyingNode);
+	}
 
 	// Getters: delegate-to-the-node
     public String getAddress() {	
-    	String address = null;
-    	try (org.neo4j.graphdb.Transaction tx = underlyingNode.getGraphDatabase().beginTx()){
-    		address = (String)underlyingNode.getProperty( "address" );
-    		tx.success();
-    	}
-    	return address;
+    	return (String) super.getProperty("address");
     }
     
     public Relationship getClusterRelationship(){
     	Relationship clusterRelationship = null;
-    	try (org.neo4j.graphdb.Transaction tx = underlyingNode.getGraphDatabase().beginTx()){
-    		clusterRelationship = this.underlyingNode
+    	try (org.neo4j.graphdb.Transaction tx = this.getUnderlyingNode().getGraphDatabase().beginTx()){
+    		clusterRelationship = this.getUnderlyingNode()
     				.getSingleRelationship(RelTypes.CLUSTER,Direction.OUTGOING);
     		tx.success();
     	}
     	return clusterRelationship;
     }
     
-    private  Node underlyingNode = null;
 }

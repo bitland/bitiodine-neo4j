@@ -1,4 +1,4 @@
-package bitiodine.domain.model;
+package bitiodine.domain.model.neo4j;
 
 import org.neo4j.graphdb.RelationshipType;
 
@@ -7,5 +7,6 @@ public enum RelTypes implements RelationshipType{
 	CLUSTER,
 	TXIN,
 	TXOUT,
-	TXPREV
+	TXPREV,
+	BLOCK
 }

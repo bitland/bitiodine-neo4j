@@ -2,16 +2,12 @@ package bitiodine.domain.model;
 
 import org.neo4j.graphdb.Node;
 
-public class Cluster {
+import bitiodine.domain.model.neo4j.Neo4jDomainEntity;
+
+public class Cluster extends Neo4jDomainEntity{
     
 	public Cluster( Node underlyingNode ) {
-        this.underlyingNode = underlyingNode;
+        super(underlyingNode);
     }
 	
-    public Node getUnderlyingNode() {
-		return this.underlyingNode;
-	}
-	
-    private  Node underlyingNode = null;
-    
 }

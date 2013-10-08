@@ -3,23 +3,28 @@ package bitiodine.domain.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.index.UniqueFactory;
 
 import bitiodine.domain.model.Address;
-import bitiodine.domain.model.NodeTypes;
-import bitiodine.domain.model.RelTypes;
+import bitiodine.domain.model.Block;
 import bitiodine.domain.model.Transaction;
+import bitiodine.domain.model.neo4j.NodeTypes;
+import bitiodine.domain.model.neo4j.RelTypes;
 import bitiodine.domain.service.AddressLocalServiceUtil;
+import bitiodine.domain.service.BlockLocalServiceUtil;
 import bitiodine.domain.service.TransactionLocalService;
 import bitiodine.domain.service.TransactionLocalServiceUtil;
 
 public class TransactionLocalServiceImpl implements TransactionLocalService{
 	
 	public TransactionLocalServiceImpl(GraphDatabaseService graphDb) {
-		this.graphDb=graphDb;
+		this.graphDb=graphDb;	
+		
 		try ( org.neo4j.graphdb.Transaction tx = graphDb.beginTx() ) {
+			//Unique transaction factory
 			this.uniqueTransactionFactory = new 
 		    		UniqueFactory.UniqueNodeFactory( graphDb, "transactions" ) {
 						@Override
@@ -28,7 +33,8 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
 							created.setProperty( "tx-hash", properties.get( "tx-hash" ) );	
 						}
 		    };
-		    tx.success();
+		    
+			tx.success();
 		}
 	}
 	
@@ -47,9 +53,9 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
 	
 	@Override
 	public Transaction getOrCreateTransaction(
-			String txHash, List<String> txIns, List<Long> amountsIn,
-			List<String> txPrev, List<String> txOuts, List<Long> amountsOut, 
-			String block_hash, Long timestamp) {
+			String txHash, List<String> txIns, List<Integer> amountsIn,
+			List<String> txPrev, List<String> txOuts, List<Integer> amountsOut, 
+			String blockHash, Long timestamp) {
 		Transaction t = null;
 		try ( org.neo4j.graphdb.Transaction tx = graphDb.beginTx() ) {
     		// get-or-create node
@@ -76,8 +82,11 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
     			n.createRelationshipTo(t2.getUnderlyingNode(), RelTypes.TXPREV);
     		}
     		
-    		//TODO Link to block
-    		n.setProperty("timestamp", timestamp);
+    		Block b = BlockLocalServiceUtil.getOrCreateBlock(graphDb, blockHash, timestamp);
+			if ( n.getSingleRelationship(RelTypes.BLOCK,Direction.OUTGOING) != null)
+				n.getSingleRelationship(RelTypes.BLOCK,Direction.OUTGOING).delete();
+				
+			n.createRelationshipTo(b.getUnderlyingNode(), RelTypes.BLOCK);
     		
     		t = new Transaction(n);
 			tx.success();
@@ -85,7 +94,14 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
 		return t;
 	}
 	
+	@Override
+	public Transaction getFirst() {
+		//TODO 
+		return null;
+	}
+	
 	
 	private GraphDatabaseService graphDb = null;
 	private UniqueFactory<Node> uniqueTransactionFactory = null;
+
 }

@@ -15,8 +15,8 @@ public interface GraphPlugin {
 			String address, String cluster_id);
 	
 	Node addTransactionNode(GraphDatabaseService graphDb, String txHash,
-			List<String> txIns, List<Long> amountsIn, List<String> txPrevs,
-			List<String> txOuts, List<Long> amountsOut, String block_hash,
+			List<String> txIns, List<Integer> amountsIn, List<String> txPrevs,
+			List<String> txOuts, List<Integer> amountsOut, String block_hash,
 			Long timestamp);
 	
 }

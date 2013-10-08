@@ -11,8 +11,8 @@ import org.neo4j.graphdb.index.UniqueFactory;
 
 import bitiodine.domain.model.Address;
 import bitiodine.domain.model.Cluster;
-import bitiodine.domain.model.NodeTypes;
-import bitiodine.domain.model.RelTypes;
+import bitiodine.domain.model.neo4j.NodeTypes;
+import bitiodine.domain.model.neo4j.RelTypes;
 import bitiodine.domain.service.AddressLocalService;
 import bitiodine.domain.service.AddressLocalServiceUtil;
 import bitiodine.domain.service.ClusterLocalServiceUtil;

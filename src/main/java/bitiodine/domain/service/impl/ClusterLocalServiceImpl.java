@@ -8,7 +8,7 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.UniqueFactory;
 
 import bitiodine.domain.model.Cluster;
-import bitiodine.domain.model.NodeTypes;
+import bitiodine.domain.model.neo4j.NodeTypes;
 import bitiodine.domain.service.ClusterLocalService;
 
 public class ClusterLocalServiceImpl implements ClusterLocalService {
