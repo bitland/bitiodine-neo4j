@@ -26,11 +26,15 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
 		try ( org.neo4j.graphdb.Transaction tx = graphDb.beginTx() ) {
 			//Unique transaction factory
 			this.uniqueTransactionFactory = new 
-		    		UniqueFactory.UniqueNodeFactory( graphDb, "transactions" ) {
+		    		UniqueFactory.UniqueNodeFactory( graphDb, 
+		    				Transaction.getUniqueIndexName() ) 
+			{
 						@Override
 						protected void initialize(Node created,
-								Map<String, Object> properties) {
-							created.setProperty( "tx-hash", properties.get( "tx-hash" ) );	
+								Map<String, Object> properties) 
+						{
+							created.setProperty( Transaction.getHashPropertyName(), 
+									properties.get( Transaction.getHashPropertyName() ) );	
 						}
 		    };
 		    
@@ -43,7 +47,8 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
 		Transaction t = null;
 		try ( org.neo4j.graphdb.Transaction tx = graphDb.beginTx() ) {
     		// get-or-create node
-			Node n = uniqueTransactionFactory.getOrCreate( "tx-hash", txHash );
+			Node n = uniqueTransactionFactory.getOrCreate( Transaction.getHashPropertyName()
+					, txHash );
     		n.addLabel(NodeTypes.TRANSACTION);
     		t = new Transaction(n);
 			tx.success();
@@ -53,27 +58,28 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
 	
 	@Override
 	public Transaction getOrCreateTransaction(
-			String txHash, List<String> txIns, List<Integer> amountsIn,
-			List<String> txPrev, List<String> txOuts, List<Integer> amountsOut, 
+			String txHash, List<String> txIns, List<Long> amountsIn,
+			List<String> txPrev, List<String> txOuts, List<Long> amountsOut, 
 			String blockHash, Long timestamp) {
 		Transaction t = null;
 		try ( org.neo4j.graphdb.Transaction tx = graphDb.beginTx() ) {
     		// get-or-create node
-			Node n = uniqueTransactionFactory.getOrCreate( "tx-hash", txHash );
+			Node n = uniqueTransactionFactory.getOrCreate( Transaction.getHashPropertyName()
+					, txHash );
     		n.addLabel(NodeTypes.TRANSACTION);
     		
     		// Link to input addresses and amounts
     		for (int i=0; i<txIns.size(); i++) {
     			AddressLocalServiceUtil.getOrCreateAddress(graphDb, txIns.get(i))
     				.getUnderlyingNode().createRelationshipTo(n, RelTypes.TXIN)
-    				.setProperty("amount", amountsIn.get(i));
+    				.setProperty(Transaction.getAmountPropertyName(), amountsIn.get(i));
     		}
     		
     		// Link to output addresses and amounts
     		for (int i=0; i<txOuts.size(); i++) {
     			Address a = AddressLocalServiceUtil.getOrCreateAddress(graphDb, txOuts.get(i));
     			n.createRelationshipTo(a.getUnderlyingNode(), RelTypes.TXOUT)
-    				.setProperty("amount", amountsOut.get(i));
+    				.setProperty(Transaction.getAmountPropertyName(), amountsOut.get(i));
     		}
     		
     		// Link to input transactions

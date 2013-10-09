@@ -20,27 +20,31 @@ public class BlockLocalServiceImpl implements BlockLocalService{
 		try ( org.neo4j.graphdb.Transaction tx = graphDb.beginTx() ) {
 			//Unique block factory
 			this.uniqueBlockFactory = new 
-		    		UniqueFactory.UniqueNodeFactory( graphDb, "blocks" ) {
+		    		UniqueFactory.UniqueNodeFactory( graphDb, 
+		    				Block.getUniqueIndexName()) 
+			{
 						@Override
-						protected void initialize(Node created,
-								Map<String, Object> properties) {
-							created.setProperty( "block-hash", properties.get( "block-hash" ) );	
+						protected void initialize(Node created,Map<String, Object> properties) 
+						{
+							created.setProperty( Block.getHashPropertyName(), 
+									properties.get( Block.getHashPropertyName() ) );	
 						}
 		    };
 		    
 		    //Block timeline index
 			blockTimelineIndex = new LuceneTimeline<Node>(graphDb, 
-					graphDb.index().forNodes("blocks"));
+					graphDb.index().forNodes(Block.getTimelineIndexName()));
 		    
 			tx.success();
 		}
 	}
 
 	@Override
-	public Block getOrCreateBlock(String blockHash) {
+	public Block getOrCreateBlock(String blockHash) 
+	{
 		Block b = null;
 		try ( org.neo4j.graphdb.Transaction tx = graphDb.beginTx() ) {
-			Node n = uniqueBlockFactory.getOrCreate( "block-hash", blockHash );
+			Node n = uniqueBlockFactory.getOrCreate( Block.getHashPropertyName(), blockHash );
     		n.addLabel(NodeTypes.BLOCK);
     		b = new Block(n);
     		tx.success();
@@ -54,13 +58,15 @@ public class BlockLocalServiceImpl implements BlockLocalService{
 	@Override
 	public Block getOrCreateBlock(String blockHash, Long timestamp) {
 		Block b = null;
-		try ( org.neo4j.graphdb.Transaction tx = graphDb.beginTx() ) {
-			Node n = uniqueBlockFactory.getOrCreate( "block-hash", blockHash );
+		try ( org.neo4j.graphdb.Transaction tx = graphDb.beginTx() ) 
+		{
+			Node n = uniqueBlockFactory.getOrCreate( Block.getHashPropertyName(), blockHash );
     		n.addLabel(NodeTypes.BLOCK);
     		
-    		if (n.hasProperty("timestamp"))
-    			blockTimelineIndex.remove(n, (long) n.getProperty("timestamp"));
-    		n.setProperty("timestamp", timestamp);
+    		if (n.hasProperty(Block.getTimestampPropertyName()))
+    			blockTimelineIndex.remove(n, (long) n.getProperty(
+    					Block.getTimestampPropertyName()));
+    		n.setProperty(Block.getTimestampPropertyName(), timestamp);
     		blockTimelineIndex.add(n, timestamp);
     		
     		b = new Block(n);

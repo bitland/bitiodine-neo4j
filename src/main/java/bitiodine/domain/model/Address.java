@@ -16,7 +16,7 @@ public class Address extends Neo4jDomainEntity
 
 	// Getters: delegate-to-the-node
     public String getAddress() {	
-    	return (String) super.getProperty("address");
+    	return (String) super.getProperty(Address.getAddressPropertyName());
     }
     
     public Relationship getClusterRelationship(){
@@ -28,5 +28,16 @@ public class Address extends Neo4jDomainEntity
     	}
     	return clusterRelationship;
     }
+    
+    
+	//Property names static methods
+	public static String getAddressPropertyName(){
+		return "address";
+	}
+	
+	//Index names static methods
+	public static String getUniqueIndexName(){
+		return "addresses";
+	}
     
 }

@@ -17,11 +17,13 @@ public class ClusterLocalServiceImpl implements ClusterLocalService {
 		this.graphDb=graphDb;
 		try ( Transaction tx = graphDb.beginTx() ) {
 		    uniqueClusterFactory = new 
-		    		UniqueFactory.UniqueNodeFactory( graphDb, "clusters" ) {
+		    		UniqueFactory.UniqueNodeFactory( graphDb, Cluster.getUniqueIndexName() ) 
+		    {
 					@Override
 					protected void initialize(Node created,
 							Map<String, Object> properties) {
-						created.setProperty( "cluster", properties.get( "cluster" ) );	
+						created.setProperty( Cluster.getClusterPropertyName(), 
+								properties.get( Cluster.getClusterPropertyName() ) );	
 					}
 		    };
 		    tx.success();
@@ -32,7 +34,8 @@ public class ClusterLocalServiceImpl implements ClusterLocalService {
 	public Cluster getOrCreateCluster(String cluster_id) {
 		Cluster c = null;
 		try ( Transaction tx = graphDb.beginTx() ) {
-			Node n = uniqueClusterFactory.getOrCreate( "cluster", cluster_id );
+			Node n = uniqueClusterFactory.getOrCreate( Cluster.getClusterPropertyName(), 
+					cluster_id );
     		n.addLabel(NodeTypes.CLUSTER);
     		c = new Cluster(n);
     		tx.success();
@@ -48,7 +51,8 @@ public class ClusterLocalServiceImpl implements ClusterLocalService {
 		Cluster c = null;
 		try ( Transaction tx = graphDb.beginTx() ) {
 			c = new Cluster (graphDb
-					.findNodesByLabelAndProperty(NodeTypes.CLUSTER, "cluster", cluster_id)
+					.findNodesByLabelAndProperty(NodeTypes.CLUSTER, 
+							Cluster.getClusterPropertyName(), cluster_id)
 					.iterator().next());
 			tx.success();
 		}

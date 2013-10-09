@@ -9,9 +9,9 @@ import bitiodine.domain.service.impl.TransactionLocalServiceImpl;
 
 public class TransactionLocalServiceUtil {
 	public static Transaction getOrCreateTransaction(GraphDatabaseService graphDb,
-			String txHash, List<String> txIns, List<Integer> amountsIn,
+			String txHash, List<String> txIns, List<Long> amountsIn,
 			List<String> txPrevs, List<String> txOuts,
-			List<Integer> amountsOut, String block_hash, Long timestamp){
+			List<Long> amountsOut, String block_hash, Long timestamp){
 		return getService(graphDb).getOrCreateTransaction(txHash, txIns, amountsIn, 
 				txPrevs, txOuts, amountsOut, block_hash, timestamp);
 	}

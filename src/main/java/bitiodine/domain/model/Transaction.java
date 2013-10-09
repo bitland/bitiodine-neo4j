@@ -11,7 +11,21 @@ public class Transaction extends Neo4jDomainEntity{
     }
 	
 	public String getHash(){
-    	return (String) super.getProperty("tx-hash");
+    	return (String) super.getProperty(Transaction.getHashPropertyName());
+	}
+	
+	//Property names static methods
+	public static String getHashPropertyName(){
+		return "hash";
+	}
+	
+	public static String getAmountPropertyName(){
+		return "amount";
+	}
+	
+	//Index names static methods
+	public static String getUniqueIndexName(){
+		return "transactions";
 	}
 
 }

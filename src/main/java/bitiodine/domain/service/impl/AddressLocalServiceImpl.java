@@ -23,11 +23,12 @@ public class AddressLocalServiceImpl implements AddressLocalService {
 		this.graphDb=graphDb;
 		try ( Transaction tx = graphDb.beginTx() ) {
 		    this.uniqueAddressFactory = new 
-		    		UniqueFactory.UniqueNodeFactory( graphDb, "addresses" ) {
+		    		UniqueFactory.UniqueNodeFactory( graphDb, Address.getUniqueIndexName() ) {
 						@Override
 						protected void initialize(Node created,
 								Map<String, Object> properties) {
-							created.setProperty( "address", properties.get( "address" ) );	
+							created.setProperty( Address.getAddressPropertyName(), 
+									properties.get( Address.getAddressPropertyName() ) );	
 						}
 		    };
 		    tx.success();
@@ -51,7 +52,8 @@ public class AddressLocalServiceImpl implements AddressLocalService {
 		Address a = null;
 		try ( Transaction tx = graphDb.beginTx() ) {
     		// get-or-create node
-			Node n = uniqueAddressFactory.getOrCreate( "address", address );
+			Node n = uniqueAddressFactory.getOrCreate( 
+					Address.getAddressPropertyName(), address );
     		n.addLabel(NodeTypes.ADDRESS);
     		a = new Address(n);
 			tx.success();
@@ -83,8 +85,9 @@ public class AddressLocalServiceImpl implements AddressLocalService {
 		Address a = null;
 		try ( Transaction tx = graphDb.beginTx() ) {
 			a = new Address (graphDb
-					.findNodesByLabelAndProperty(NodeTypes.ADDRESS, "address", address)
-					.iterator().next());
+					.findNodesByLabelAndProperty(NodeTypes.ADDRESS, 
+							Address.getAddressPropertyName(), address)
+							.iterator().next());
 			tx.success();
 		}
 		return a;
