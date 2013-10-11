@@ -68,6 +68,8 @@ public class AddressLocalServiceImpl implements AddressLocalService {
 			a = AddressLocalServiceUtil.getOrCreateAddress(this.graphDb, address);
 			Cluster c = ClusterLocalServiceUtil.getOrCreateCluster(this.graphDb, cluster_id);
 			
+			
+			//TODO correggere (vedi TransactionLocalServiceImpl per blocco)
 			Relationship clusterRelationship = a.getUnderlyingNode()
 					.getSingleRelationship(RelTypes.CLUSTER,Direction.OUTGOING);
 			

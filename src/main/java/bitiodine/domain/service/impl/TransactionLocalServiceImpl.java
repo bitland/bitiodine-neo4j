@@ -13,6 +13,7 @@ import bitiodine.domain.model.Block;
 import bitiodine.domain.model.Transaction;
 import bitiodine.domain.model.neo4j.NodeTypes;
 import bitiodine.domain.model.neo4j.RelTypes;
+import bitiodine.domain.model.neo4j.UniqueRelationshipFactory;
 import bitiodine.domain.service.AddressLocalServiceUtil;
 import bitiodine.domain.service.BlockLocalServiceUtil;
 import bitiodine.domain.service.TransactionLocalService;
@@ -29,15 +30,18 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
 		    		UniqueFactory.UniqueNodeFactory( graphDb, 
 		    				Transaction.getUniqueIndexName() ) 
 			{
-						@Override
-						protected void initialize(Node created,
-								Map<String, Object> properties) 
-						{
-							created.setProperty( Transaction.getHashPropertyName(), 
-									properties.get( Transaction.getHashPropertyName() ) );	
-						}
+					@Override
+					protected void initialize(Node created,
+							Map<String, Object> properties) 
+					{
+						created.setProperty( Transaction.getHashPropertyName(), 
+								properties.get( Transaction.getHashPropertyName() ) );	
+					}
 		    };
 		    
+		    this.uniqueRelationshipFactory = new UniqueRelationshipFactory(graphDb,
+		    		"iorelationships");
+		        
 			tx.success();
 		}
 	}
@@ -70,28 +74,29 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
     		
     		// Link to input addresses and amounts
     		for (int i=0; i<txIns.size(); i++) {
-    			AddressLocalServiceUtil.getOrCreateAddress(graphDb, txIns.get(i))
-    				.getUnderlyingNode().createRelationshipTo(n, RelTypes.TXIN)
-    				.setProperty(Transaction.getAmountPropertyName(), amountsIn.get(i));
+    			//Get or Create the Address
+    			Address a = AddressLocalServiceUtil.getOrCreateAddress(graphDb, txIns.get(i));
+    			Transaction t2 = TransactionLocalServiceUtil.getOrCreateTransaction(graphDb,txPrev.get(i));
+    			
+    			uniqueRelationshipFactory.getOrCreate(a.getUnderlyingNode(), n, 
+    					RelTypes.TXIN, txHash+" input #"+i+" = "+txIns.get(i))
+    					.setProperty(Transaction.getAmountPropertyName(), amountsIn.get(i));
+    			
+    			uniqueRelationshipFactory.getOrCreate(n, t2.getUnderlyingNode(),
+    					RelTypes.TXPREV, txHash+" input #"+i+" = "+txPrev.get(i));
     		}
     		
     		// Link to output addresses and amounts
     		for (int i=0; i<txOuts.size(); i++) {
-    			Address a = AddressLocalServiceUtil.getOrCreateAddress(graphDb, txOuts.get(i));
-    			n.createRelationshipTo(a.getUnderlyingNode(), RelTypes.TXOUT)
-    				.setProperty(Transaction.getAmountPropertyName(), amountsOut.get(i));
-    		}
-    		
-    		// Link to input transactions
-    		for (int i=0; i<txPrev.size(); i++) {
-    			Transaction t2 = TransactionLocalServiceUtil.getOrCreateTransaction(graphDb,txPrev.get(i));
-    			n.createRelationshipTo(t2.getUnderlyingNode(), RelTypes.TXPREV);
+    			Address a = AddressLocalServiceUtil.getOrCreateAddress(graphDb, txOuts.get(i));		
+    			uniqueRelationshipFactory.getOrCreate(n, a.getUnderlyingNode(), 
+    					RelTypes.TXOUT, txHash+" output #"+i)
+    					.setProperty(Transaction.getAmountPropertyName(), amountsOut.get(i));
     		}
     		
     		Block b = BlockLocalServiceUtil.getOrCreateBlock(graphDb, blockHash, timestamp);
 			if ( n.getSingleRelationship(RelTypes.BLOCK,Direction.OUTGOING) != null)
 				n.getSingleRelationship(RelTypes.BLOCK,Direction.OUTGOING).delete();
-				
 			n.createRelationshipTo(b.getUnderlyingNode(), RelTypes.BLOCK);
     		
     		t = new Transaction(n);
@@ -109,5 +114,6 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
 	
 	private GraphDatabaseService graphDb = null;
 	private UniqueFactory<Node> uniqueTransactionFactory = null;
+	private UniqueRelationshipFactory uniqueRelationshipFactory = null;
 
 }

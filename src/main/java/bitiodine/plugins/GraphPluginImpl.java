@@ -98,6 +98,8 @@ public class GraphPluginImpl extends ServerPlugin implements GraphPlugin
 			@Parameter( name = "timestamp" ) Long timestamp){
 		
 		//TODO Check input parameters
+		
+		
 		Transaction t = TransactionLocalServiceUtil.getOrCreateTransaction(graphDb, 
 				txHash, txIns, amountsIn, txPrevs, txOuts, amountsOut, 
 				blockHash, timestamp);

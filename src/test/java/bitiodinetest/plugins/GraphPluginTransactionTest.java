@@ -48,19 +48,19 @@ public class GraphPluginTransactionTest
         //        		block_hash, timestamp)
         graphPlugin.addTransactionNode(graphDb, "tx-1", 
         		Arrays.asList("addr1","addr2","addr3"), Arrays.asList(new Long(10),new Long(10), new Long(20)),
-        		(List<String>) new ArrayList<String>(), 
+        		Arrays.asList("tx1","tx2","tx3"), 
         		Arrays.asList("addr1","addr4"), Arrays.asList(new Long(20), new Long(20)), 
         		"block-1", new Long(10));
         
         graphPlugin.addTransactionNode(graphDb, "tx-2", 
         		Arrays.asList("addr2"), Arrays.asList(new Long(20)),
-        		(List<String>) new ArrayList<String>(), 
+        		Arrays.asList("tx1"), 
         		Arrays.asList("addr1","addr4"), Arrays.asList(new Long(10),new Long(10)), 
         		"block-2", new Long(20));
         
         graphPlugin.addTransactionNode(graphDb, "tx-3", 
         		Arrays.asList("addr3"), Arrays.asList(new Long(10)),
-        		(List<String>) new ArrayList<String>(), 
+        		Arrays.asList("tx1"), 
         		Arrays.asList("addr3","addr4"), Arrays.asList(new Long(5),new Long(5)), 
         		"block-6", new Long(5));
         
