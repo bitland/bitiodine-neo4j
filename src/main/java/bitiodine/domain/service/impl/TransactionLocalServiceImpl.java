@@ -6,6 +6,7 @@ import java.util.Map;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.index.UniqueFactory;
 
 import bitiodine.domain.model.Address;
@@ -78,9 +79,10 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
     			Address a = AddressLocalServiceUtil.getOrCreateAddress(graphDb, txIns.get(i));
     			Transaction t2 = TransactionLocalServiceUtil.getOrCreateTransaction(graphDb,txPrev.get(i));
     			
-    			uniqueRelationshipFactory.getOrCreate(a.getUnderlyingNode(), n, 
-    					RelTypes.TXIN, txHash+" input #"+i+" = "+txIns.get(i))
-    					.setProperty(Transaction.getAmountPropertyName(), amountsIn.get(i));
+    			Relationship r =uniqueRelationshipFactory.getOrCreate(a.getUnderlyingNode(), 
+    					n, RelTypes.TXIN, txHash+" input #"+i+" = "+txIns.get(i));
+    			r.setProperty(Transaction.getAmountPropertyName(), amountsIn.get(i));
+    			r.setProperty(Transaction.getPositionPropertyName(), i);
     			
     			uniqueRelationshipFactory.getOrCreate(n, t2.getUnderlyingNode(),
     					RelTypes.TXPREV, txHash+" input #"+i+" = "+txPrev.get(i));
@@ -89,9 +91,10 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
     		// Link to output addresses and amounts
     		for (int i=0; i<txOuts.size(); i++) {
     			Address a = AddressLocalServiceUtil.getOrCreateAddress(graphDb, txOuts.get(i));		
-    			uniqueRelationshipFactory.getOrCreate(n, a.getUnderlyingNode(), 
-    					RelTypes.TXOUT, txHash+" output #"+i)
-    					.setProperty(Transaction.getAmountPropertyName(), amountsOut.get(i));
+    			Relationship r = uniqueRelationshipFactory.getOrCreate(
+    					n, a.getUnderlyingNode(), RelTypes.TXOUT, txHash+" output #"+i);
+    			r.setProperty(Transaction.getAmountPropertyName(), amountsOut.get(i));
+    			r.setProperty(Transaction.getPositionPropertyName(), i);
     		}
     		
     		Block b = BlockLocalServiceUtil.getOrCreateBlock(graphDb, blockHash, timestamp);
