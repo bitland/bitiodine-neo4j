@@ -15,11 +15,14 @@ public class Block extends Neo4jDomainEntity {
 	}
 	
 	//Property names static methods
+	public static String getIdPropertyName(){
+		return "block_id";
+	}
 	public static String getHashPropertyName(){
-		return "hash";
+		return "block_hash";
 	}
 	public static String getTimestampPropertyName(){
-		return "timestamp";
+		return "time";
 	}
 	
 	//Index names static methods

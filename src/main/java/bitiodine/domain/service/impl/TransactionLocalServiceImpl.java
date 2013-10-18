@@ -67,6 +67,7 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
 			List<String> txPrev, List<String> txOuts, List<Long> amountsOut, 
 			String blockHash, Long timestamp) {
 		Transaction t = null;
+		
 		try ( org.neo4j.graphdb.Transaction tx = graphDb.beginTx() ) {
     		// get-or-create node
 			Node n = uniqueTransactionFactory.getOrCreate( Transaction.getHashPropertyName()
@@ -107,6 +108,9 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
 		}
 		return t;
 	}
+	
+	
+	
 	
 	@Override
 	public Transaction getFirst() {
