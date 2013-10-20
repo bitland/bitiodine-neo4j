@@ -12,6 +12,7 @@ import org.neo4j.graphdb.index.UniqueFactory;
 import bitiodine.domain.model.Address;
 import bitiodine.domain.model.Block;
 import bitiodine.domain.model.Transaction;
+import bitiodine.domain.model.TxInOut;
 import bitiodine.domain.model.neo4j.NodeTypes;
 import bitiodine.domain.model.neo4j.RelTypes;
 import bitiodine.domain.model.neo4j.UniqueRelationshipFactory;
@@ -82,8 +83,8 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
     			
     			Relationship r =uniqueRelationshipFactory.getOrCreate(a.getUnderlyingNode(), 
     					n, RelTypes.TXIN, txHash+" input #"+i+" = "+txIns.get(i));
-    			r.setProperty(Transaction.getAmountPropertyName(), amountsIn.get(i));
-    			r.setProperty(Transaction.getPositionPropertyName(), i);
+    			r.setProperty(TxInOut.getAmountPropertyName(), amountsIn.get(i));
+    			r.setProperty(TxInOut.getTxInPositionPropertyName(), i);
     			
     			uniqueRelationshipFactory.getOrCreate(n, t2.getUnderlyingNode(),
     					RelTypes.TXPREV, txHash+" input #"+i+" = "+txPrev.get(i));
@@ -94,8 +95,8 @@ public class TransactionLocalServiceImpl implements TransactionLocalService{
     			Address a = AddressLocalServiceUtil.getOrCreateAddress(graphDb, txOuts.get(i));		
     			Relationship r = uniqueRelationshipFactory.getOrCreate(
     					n, a.getUnderlyingNode(), RelTypes.TXOUT, txHash+" output #"+i);
-    			r.setProperty(Transaction.getAmountPropertyName(), amountsOut.get(i));
-    			r.setProperty(Transaction.getPositionPropertyName(), i);
+    			r.setProperty(TxInOut.getAmountPropertyName(), amountsOut.get(i));
+    			r.setProperty(TxInOut.getTxOutPositionPropertyName(), i);
     		}
     		
     		Block b = BlockLocalServiceUtil.getOrCreateBlock(graphDb, blockHash, timestamp);

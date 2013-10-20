@@ -29,8 +29,14 @@ public class Block extends Neo4jDomainEntity {
 	public static String getUniqueIndexName(){
 		return "blocks";
 	}
+	public static String getBlockHashesIndexName(){
+		return "blockhashes";
+	}
 	public static String getTimelineIndexName(){
 		return "timestamps";
 	}
 
+	public static String getBlocksIndexName(){
+		return "blocks";
+	}
 }

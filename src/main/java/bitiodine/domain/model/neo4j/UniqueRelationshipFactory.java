@@ -12,8 +12,8 @@ public class UniqueRelationshipFactory{
 		uniqueRelationshipIndex = graphDb.index().forRelationships(indexname);
 	}
 	
-	public Relationship getOrCreate(Node startingNode, Node endNode, RelationshipType relType,
-			String id){
+	public Relationship getOrCreate(Node startingNode, Node endNode, 
+			RelationshipType relType, Object id){
 		Relationship r = uniqueRelationshipIndex.get("rel_id", id).getSingle();
 		if (r==null){
 			r = startingNode.createRelationshipTo(endNode, relType);
@@ -22,6 +22,10 @@ public class UniqueRelationshipFactory{
 		}
 		return r;
 		
+	}
+	
+	public Relationship get(Object id){
+		return uniqueRelationshipIndex.get("rel_id", id).getSingle();	
 	}
 	
 	GraphDatabaseService graphDb;

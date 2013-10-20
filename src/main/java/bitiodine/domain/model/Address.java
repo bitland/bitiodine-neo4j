@@ -31,12 +31,20 @@ public class Address extends Neo4jDomainEntity
     
     
 	//Property names static methods
+	public static String getIdPropertyName(){
+		return "address";
+	}
+	
 	public static String getAddressPropertyName(){
 		return "address";
 	}
 	
 	//Index names static methods
 	public static String getUniqueIndexName(){
+		return "addresses";
+	}
+
+	public static String getAddressesIndexName() {
 		return "addresses";
 	}
     

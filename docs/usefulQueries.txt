@@ -4,6 +4,12 @@ RETURN a.address AS address,sum(txouts.amount)-sum(txins.amount) AS balance
 ORDER BY balance DESC 
 LIMIT 10;
 
+START a=node:addresses("address:*") 
+MATCH a-[txins?:TXIN]->t1, a<-[txouts:TXOUT]-t2 
+RETURN a.address AS address,sum(txouts.amount)-sum(txins.amount) AS balance 
+ORDER BY balance DESC 
+LIMIT 10;
+
 START a=node:addresses(address="12higDjoCCNXSA95xZMWUdPvXNmkAduhWv") 
 MATCH a:ADDRESS, a-[txins?:TXIN]->t1-[:BLOCK]->b1, a<-[txouts:TXOUT]-t2-[:BLOCK]->b2
 WHERE b2.timestamp<1234810654

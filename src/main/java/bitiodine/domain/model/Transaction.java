@@ -22,16 +22,14 @@ public class Transaction extends Neo4jDomainEntity{
 		return "tx_hash";
 	}
 	
-	public static String getAmountPropertyName(){
-		return "amount";
-	}
-	
-	public static String getPositionPropertyName(){
-		return "position";
-	}
-	
 	//Index names static methods
 	public static String getUniqueIndexName(){
+		return "transactions";
+	}
+	public static String getTransactionHashesIndexName(){
+		return "transactionhashes";
+	}
+	public static String getTransactionsIndexName(){
 		return "transactions";
 	}
 

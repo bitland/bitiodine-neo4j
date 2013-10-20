@@ -7,6 +7,7 @@ public enum RelTypes implements RelationshipType{
 	CLUSTER,
 	TXIN,
 	TXOUT,
+	NEXTTX,
 	TXPREV,
 	BLOCK
 }
