@@ -124,23 +124,29 @@ public class Neo4jBatchImporter {
 		managePages(queryCount, queryNoLimit, new SqlToGraphTranslator(){
 		    public void createFromResultSet(ResultSet rs) throws SQLException
 		    {	
-		    	//TODO repair
-		    	Map<String,Object> properties = MapUtil.map(
-						Address.getAddressPropertyName(), rs.getString("address") 
-						);
-				long node = inserter.createNode( properties, NodeTypes.ADDRESS);
+		    	String address = rs.getString("address");
+		    	long node = 0;
+		    	if (addressNeo4jIds.containsKey(address))
+		    		node = addressNeo4jIds.get(address);
+		    	else {	
+			    	Map<String,Object> properties = MapUtil.map(
+							Address.getAddressPropertyName(), address 
+							);
+					node = inserter.createNode( properties, NodeTypes.ADDRESS);
+					
+					// Add to index
+					addresses.add(node, properties);
+					
+					// Add address to map
+					addressNeo4jIds.put(rs.getString("address"), node);
+		    	}
 				Map<String,Object> rproperties = MapUtil.map(
 						TxInOut.getTxOutIdPropertyName(), rs.getLong("txout_id"),
 						TxInOut.getAmountPropertyName(), rs.getInt("txout_value")
 						);
 				inserter.createRelationship( transactionNeo4jIds.get(rs.getLong("tx_id")), 
-						node, RelTypes.TXOUT, rproperties);
+						node, RelTypes.TXOUT, rproperties);		
 				
-				// Add to index
-				addresses.add(node, properties);
-				
-				// Add address to map
-				addressNeo4jIds.put(rs.getString("address"), node);
 		    }
 		});
 	}
