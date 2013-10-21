@@ -43,13 +43,6 @@ public class Neo4jBatchImporter {
 		
 		long startTime = System.currentTimeMillis();
 		
-		try {
-			System.out.println(SQLiteJDBCLoader.isNativeMode());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 		deleteOldDatabase();
 		System.out.println("Old database deleted successfully, initiating neo4jDb...");
 		initBatchInserter();
@@ -232,6 +225,8 @@ public class Neo4jBatchImporter {
 	
 	private void initSqlite(){
 	    try {
+	    	if (!SQLiteJDBCLoader.isNativeMode())
+	    		throw new Exception("Please use a native SQLiteJDBC driver");
 			Class.forName("org.sqlite.JDBC");
 			sqliteConnection = DriverManager
 					.getConnection("jdbc:sqlite:"+SQLITE_PATH);
