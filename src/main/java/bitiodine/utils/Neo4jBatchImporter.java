@@ -24,7 +24,7 @@ import bitiodine.domain.model.neo4j.RelTypes;
 
 public class Neo4jBatchImporter {
 	private final String NEO4J_PATH="blockchain/graph.db";
-	private final String SQLITE_PATH="blockchain/blockchain_small.sqlite";
+	private final String SQLITE_PATH="blockchain/blockchain.sqlite";
 	
 	private BatchInserter inserter =  null;
 	private BatchInserterIndexProvider indexProvider = null;
