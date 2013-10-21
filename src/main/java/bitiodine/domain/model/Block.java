@@ -35,7 +35,6 @@ public class Block extends Neo4jDomainEntity {
 	public static String getTimelineIndexName(){
 		return "timestamps";
 	}
-
 	public static String getBlocksIndexName(){
 		return "blocks";
 	}

@@ -64,7 +64,7 @@
               			<goal>exec</goal>
             		</goals>
             		<configuration>
-          				<executable>deploy-and-restart.sh</executable>
+          				<executable>utils/deploy-and-restart.sh</executable>
           				<workingDirectory>.</workingDirectory>
           				<arguments></arguments>
         			</configuration>

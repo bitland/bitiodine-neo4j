@@ -1,0 +1,1 @@
+mvn exec:java -DjvmArgs="-Dcom.sun.management.jmxremote -Xmx2g" -Dexec.mainClass="bitiodine.utils.Neo4jBatchImporter"

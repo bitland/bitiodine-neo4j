@@ -33,11 +33,7 @@ public class Neo4jBatchImporter {
 	
 	
 	private Connection sqliteConnection;
-	private int limit=500000;
-	
-	private Map<Long,Long> blockNeo4jIds = null;
-	private Map<Long,Long> transactionNeo4jIds = null;
-	private Map<String,Long> addressNeo4jIds = null;
+	private int limit=300000;
 
 	public void start_import(){
 		
@@ -80,7 +76,8 @@ public class Neo4jBatchImporter {
 		String queryCount = "SELECT COUNT(*) AS COUNT FROM BLOCKS";
 		String queryNoLimit ="SELECT * FROM BLOCKS";
 		managePages(queryCount, queryNoLimit, new SqlToGraphTranslator(){
-		    public void createFromResultSet(ResultSet rs) throws SQLException
+			@Override
+			public void createFromResultSet(ResultSet rs) throws SQLException
 		    {
 		    	Map<String,Object> properties = MapUtil.map(
 						Block.getIdPropertyName(), rs.getLong("block_id"), 
@@ -88,11 +85,16 @@ public class Neo4jBatchImporter {
 						Block.getTimestampPropertyName(), rs.getLong("time")
 						);
 				long node = inserter.createNode( properties, NodeTypes.BLOCK);
-				blocks.add(node, properties);
 				
-				//Add node id to map
-				blockNeo4jIds.put(rs.getLong("block_id"), node);
+				// Add to index
+				blocks.add(node, properties);
+
 		    }
+
+			@Override
+			public void flushIndex() {
+				blocks.flush();
+			}
 		});
 	}
 	
@@ -108,14 +110,18 @@ public class Neo4jBatchImporter {
 						);
 				long node = inserter.createNode( properties, NodeTypes.TRANSACTION);
 				inserter.createRelationship(node, 
-						blockNeo4jIds.get(rs.getLong("block_id")), RelTypes.BLOCK, null);
+						blocks.get(Block.getIdPropertyName(),
+								rs.getLong("block_id")).getSingle(), RelTypes.BLOCK, null);
 				
 				// Add to index
 				transactions.add(node, properties);
 				
-				// Add to map
-				transactionNeo4jIds.put(rs.getLong("tx_id"), node);
 		    }
+
+			@Override
+			public void flushIndex() {
+				transactions.flush();
+			}
 		});
 	}
 	
@@ -126,29 +132,32 @@ public class Neo4jBatchImporter {
 		    public void createFromResultSet(ResultSet rs) throws SQLException
 		    {	
 		    	String address = rs.getString("address");
-		    	long node = 0;
-		    	if (addressNeo4jIds.containsKey(address))
-		    		node = addressNeo4jIds.get(address);
-		    	else {	
-			    	Map<String,Object> properties = MapUtil.map(
-							Address.getAddressPropertyName(), address 
-							);
-					node = inserter.createNode( properties, NodeTypes.ADDRESS);
-					
-					// Add to index
-					addresses.add(node, properties);
-					
-					// Add address to map
-					addressNeo4jIds.put(rs.getString("address"), node);
+		    	Long node = null;
+		    	Map<String,Object> properties = MapUtil.map(
+						Address.getAddressPropertyName(), address 
+						);
+		    	node = addresses.get(Address.getAddressPropertyName(),address).getSingle();
+		    	if (node==null){
+		    		node = inserter.createNode( properties, NodeTypes.ADDRESS);
+		    		// Add to index
+		    		addresses.add(node, properties);
 		    	}
+		    	
 				Map<String,Object> rproperties = MapUtil.map(
 						TxInOut.getTxOutIdPropertyName(), rs.getLong("txout_id"),
 						TxInOut.getAmountPropertyName(), rs.getInt("txout_value")
 						);
-				inserter.createRelationship( transactionNeo4jIds.get(rs.getLong("tx_id")), 
-						node, RelTypes.TXOUT, rproperties);		
+				inserter.createRelationship(
+						transactions.get(
+								Transaction.getIdPropertyName(),rs.getLong("tx_id"))
+								.getSingle(), node, RelTypes.TXOUT, rproperties);		
 				
+				addresses.flush();
 		    }
+
+			@Override
+			public void flushIndex() {
+			}
 		});
 	}
 	
@@ -163,8 +172,11 @@ public class Neo4jBatchImporter {
 		    	Map<String,Object> r1properties = MapUtil.map(
 		    			TxInOut.getAmountPropertyName(), rs.getInt("txout_value") 
 						);
-		    	inserter.createRelationship( addressNeo4jIds.get(rs.getString("address")),
-		    			transactionNeo4jIds.get(rs.getLong("tx_id")), 
+		    	inserter.createRelationship( 
+		    			addresses.get(Address.getAddressPropertyName(), 
+		    					rs.getString("address")).getSingle(),
+		    			transactions.get(Transaction.getIdPropertyName(),
+		    					rs.getLong("tx_id")).getSingle(), 
 						RelTypes.TXIN, r1properties);
 		    	
 				Map<String,Object> r2properties = MapUtil.map(
@@ -173,10 +185,16 @@ public class Neo4jBatchImporter {
 						TxInOut.getTxInPositionPropertyName(), rs.getInt("txin_pos"),
 						TxInOut.getTxOutPositionPropertyName(), rs.getInt("txout_pos")
 						);
-				inserter.createRelationship( transactionNeo4jIds.get(rs.getLong("tx_prev")), 
-						transactionNeo4jIds.get(rs.getLong("tx_id")),
+				inserter.createRelationship( transactions.get(
+							Transaction.getIdPropertyName(),rs.getLong("tx_prev")).getSingle(), 
+						transactions.get(Transaction.getIdPropertyName(),
+		    					rs.getLong("tx_id")).getSingle(),
 						RelTypes.NEXTTX, r2properties);
 		    }
+
+			@Override
+			public void flushIndex() {		
+			}
 		});
 	}
 	
@@ -197,10 +215,13 @@ public class Neo4jBatchImporter {
 				stmt = sqliteConnection.createStatement();
 				rs = stmt.executeQuery( queryNoLimit+" LIMIT "+limit+
 						" OFFSET "+offset+";" );
+				
 				while ( rs.next() ) {
 					g.createFromResultSet(rs);
 		    		rowCounter++;
 				}
+				g.flushIndex();
+				
 				rs.close(); stmt.close();
 	    		System.out.println("Total "+rowCount+" Added "+rowCounter+" - "+
 	    				String.format("%1$,.0f", (double) rowCounter/rowCount*100)+ "%...");
@@ -238,13 +259,9 @@ public class Neo4jBatchImporter {
 	
 	private void initBatchInserter(){
 		
-		blockNeo4jIds = new HashMap<Long,Long>();
-		transactionNeo4jIds = new HashMap<Long,Long>();
-		addressNeo4jIds = new HashMap<String,Long>();
-		
 		Map<String,String> config = new HashMap<String,String>();
 		//TODO tuning config
-		config.put( "neostore.nodestore.db.mapped_memory", "1G" );
+		config.put( "neostore.nodestore.db.mapped_memory", "512M" );
 		config.put( "neostore.relationshipstore.db.mapped_memory", "1G");
 		config.put( "neostore.propertystore.db.mapped_memory","50M");
 		config.put( "neostore.propertystore.db.strings.mapped_memory","100M");
@@ -258,14 +275,17 @@ public class Neo4jBatchImporter {
 		
 		blocks = indexProvider.nodeIndex(Block.getBlocksIndexName(),
 				MapUtil.stringMap("type","exact"));
+		blocks.setCacheCapacity(Block.getIdPropertyName(), 300000);
 		//TODO block timeline
 		
 		transactions = indexProvider.nodeIndex(Transaction.getTransactionsIndexName(),
 				MapUtil.stringMap("type","exact"));
+		transactions.setCacheCapacity(Transaction.getIdPropertyName(), 30000000);
 		
 		addresses = indexProvider.nodeIndex(Address.getAddressesIndexName(),
 				MapUtil.stringMap("type","exact"));
-		//TODO set cache capacities
+		addresses.setCacheCapacity(Address.getAddressPropertyName(), 50000000);
+		
 		
 	}
 	
