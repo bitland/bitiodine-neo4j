@@ -16,6 +16,14 @@
   	<maven.compiler.target>1.7</maven.compiler.target>
   </properties>
   
+  <repositories>
+    <repository>
+        <id>project.local</id>
+        <name>project</name>
+        <url>file:${project.basedir}/resources/repo</url>
+    </repository>
+  </repositories>
+  
   <dependencies>
 	<dependency>
    		<groupId>org.neo4j</groupId>
@@ -33,11 +41,13 @@
   		<version>4.11</version>
   		<scope>test</scope>
     </dependency>
+    
     <dependency>
       <groupId>org.xerial</groupId>
       <artifactId>sqlite-jdbc</artifactId>
-      <version>3.7.2</version>
+      <version>3.7.15-SNAPSHOT</version>
     </dependency>
+  
   </dependencies>
   
   <build>

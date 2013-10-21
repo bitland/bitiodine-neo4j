@@ -1,0 +1,2 @@
+wget https://bitbucket.org/xerial/sqlite-jdbc/downloads/sqlite-jdbc-3.7.15-SNAPSHOT-2.jar
+mvn deploy:deploy-file -Durl=file://`pwd`/repo/ -Dfile=./sqlite-jdbc-3.7.15-SNAPSHOT-2.jar -DgroupId=org.xerial -DartifactId=sqlite-jdbc -Dpackaging=jar -Dversion=3.7.15-SNAPSHOT

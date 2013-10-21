@@ -14,6 +14,7 @@ import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
 import org.neo4j.unsafe.batchinsert.BatchInserterIndexProvider;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
+import org.sqlite.SQLiteJDBCLoader;
 
 import bitiodine.domain.model.Address;
 import bitiodine.domain.model.Block;
@@ -41,6 +42,13 @@ public class Neo4jBatchImporter {
 	public void start_import(){
 		
 		long startTime = System.currentTimeMillis();
+		
+		try {
+			System.out.println(SQLiteJDBCLoader.isNativeMode());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		deleteOldDatabase();
 		System.out.println("Old database deleted successfully, initiating neo4jDb...");
