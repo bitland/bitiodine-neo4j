@@ -1,5 +1,8 @@
 package bitiodine.utils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -31,6 +34,9 @@ public class Neo4jBatchImporter {
 	private BatchInserterIndexProvider indexProvider = null;
 	private BatchInserterIndex blocks, blockTimeline, transactions, addresses;
 	
+	private Map<Long,Long> blockNeo4jIds = null;
+	private Map<Long,Long> transactionNeo4jIds = null;
+	private Map<String,Long> addressNeo4jIds = null;
 	
 	private Connection sqliteConnection;
 	private int limit=600000;
@@ -38,22 +44,86 @@ public class Neo4jBatchImporter {
 	public void start_import(){
 		
 		long startTime = System.currentTimeMillis();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		
-		deleteOldDatabase();
-		System.out.println("Old database deleted successfully, initiating neo4jDb...");
-		initBatchInserter();
-		initIndexes();
-		System.out.println("neo4jDb initiated, initiating sqliteDb...");
-		initSqlite();
-		System.out.println("sqliteDb configured successfully, importing blocks...");
-		importBlocks();
-		System.out.println("blocks imported, importing transactions...");
-		importTransactions();
-		System.out.println("transactions imported, importing addresses (and txouts)...");
-		importTxOuts();
-		System.out.println("addresses imported, importing txins...");
-		importTxIns();
-		System.out.println("everything imported successfully, shutting down...");
+		String answer = null;
+		try {
+			System.out.println("What do you want to import? (1:blocks 2:transaction 3:addresses 4:txin default:all)");
+			answer = reader.readLine();	
+		}
+		catch (IOException e) {
+			manageException(e);
+		}
+		
+		switch (answer) {
+		case "1":
+			System.out.println("Deleting old database...");
+			deleteOldDatabase();
+			System.out.println("Initiating databases...");
+			initBatchInserter();
+			initIndexes();
+			initSqlite();
+			System.out.println("Importing blocks...");
+			importBlocks();
+			break;
+		
+		case "2":
+			System.out.println("Initiating databases...");
+			initBatchInserter();
+			initIndexes();
+			initSqlite();
+			System.out.println("Creating hash table for blocks...");
+			createHashTableForBlocks();
+			System.out.println("Importing transactions...");
+			importTransactions();
+			break;
+		
+		case "3":
+			System.out.println("Initiating databases...");
+			initBatchInserter();
+			initIndexes();
+			initSqlite();
+			System.out.println("Creating hash table for blocks...");
+			createHashTableForBlocks();
+			System.out.println("Creating hash table for transactions...");
+			createHashTableForTransactions();
+			System.out.println("importing addresses...");
+			importTxOuts();
+			break;
+			
+		case "4":
+			System.out.println("Initiating databases...");
+			initBatchInserter();
+			initIndexes();
+			initSqlite();
+			System.out.println("Creating hash table for blocks...");
+			createHashTableForBlocks();
+			System.out.println("Creating hash table for transactions...");
+			createHashTableForTransactions();
+			System.out.println("Creating hash table for addresses...");
+			createHashTableForAddresses();
+			System.out.println("Importing txins...");
+			importTxIns();
+			break;
+			
+		default:
+			System.out.println("Deleting old database...");
+			deleteOldDatabase();
+			System.out.println("Initiating databases...");
+			initBatchInserter();
+			initIndexes();
+			initSqlite();
+			System.out.println("Importing blocks...");
+			importBlocks();
+			System.out.println("Importing transactions...");
+			importTransactions();
+			System.out.println("Importing addresses...");
+			importTxOuts();
+			System.out.println("Importing txins...");
+			importTxIns();
+		}
+		
+		System.out.println("Shutting down...");
 		shutdown();
 		
 	    long stopTime = System.currentTimeMillis();
@@ -61,18 +131,73 @@ public class Neo4jBatchImporter {
 	    System.out.println("Graph successfully imported in "+elapsedTime+" millis :)");
 	}
 	
-	private void shutdown(){
-		try {
-			sqliteConnection.close();
-		} catch (SQLException e) {
-			manageException(e);
-		}
+
+	private void createHashTableForBlocks(){
+		blockNeo4jIds = new HashMap<Long,Long>();
 		
-		indexProvider.shutdown();
-		inserter.shutdown();
+		String queryCount = "SELECT COUNT(*) AS COUNT FROM BLOCKS";
+		String queryNoLimit ="SELECT * FROM BLOCKS";
+		managePages(queryCount, queryNoLimit, new SqlToGraphTranslator(){
+			@Override
+			public void createFromResultSet(ResultSet rs) throws SQLException
+		    {
+		    	long node = blocks.get(Block.getIdPropertyName(), rs.getLong("block_id")).getSingle();
+				
+				//Add node id to map
+				blockNeo4jIds.put(rs.getLong("block_id"), node);
+		    }
+
+			@Override
+			public void afterPage() {
+			}
+		});
+	}
+	
+	private void createHashTableForTransactions(){
+		transactionNeo4jIds = new HashMap<Long,Long>();
+		
+		String queryCount = "SELECT COUNT(*) AS COUNT FROM TX";
+		String queryNoLimit ="SELECT * FROM TX";
+		managePages(queryCount, queryNoLimit, new SqlToGraphTranslator(){
+			@Override
+			public void createFromResultSet(ResultSet rs) throws SQLException
+		    {
+		    	long node = transactions.get(Transaction.getIdPropertyName(), rs.getLong("tx_id")).getSingle();
+	
+				//Add node id to map
+				transactionNeo4jIds.put(rs.getLong("tx_id"), node);
+		    }
+
+			@Override
+			public void afterPage() {
+			}
+		});
+	}
+	
+	private void createHashTableForAddresses(){
+		addressNeo4jIds = new HashMap<String,Long>();
+		
+		String queryCount = "SELECT 61921025 AS COUNT";
+		String queryNoLimit ="SELECT * FROM TXOUT";
+		managePages(queryCount, queryNoLimit, new SqlToGraphTranslator(){
+		    public void createFromResultSet(ResultSet rs) throws SQLException
+		    {	
+		    	long node = addresses.get(Address.getIdPropertyName(), rs.getString("address")).getSingle();
+		    	
+				//Add node id to map
+				addressNeo4jIds.put(rs.getString("address"), node);	
+		    }
+
+			@Override
+			public void afterPage() {
+
+			}
+		});
 	}
 	
 	private void importBlocks(){
+		blockNeo4jIds = new HashMap<Long,Long>();
+		
 		String queryCount = "SELECT COUNT(*) AS COUNT FROM BLOCKS";
 		String queryNoLimit ="SELECT * FROM BLOCKS";
 		managePages(queryCount, queryNoLimit, new SqlToGraphTranslator(){
@@ -88,6 +213,9 @@ public class Neo4jBatchImporter {
 				
 				// Add to index
 				blocks.add(node, properties);
+				
+				//Add node id to map
+				blockNeo4jIds.put(rs.getLong("block_id"), node);
 
 		    }
 
@@ -99,6 +227,8 @@ public class Neo4jBatchImporter {
 	}
 	
 	private void importTransactions(){
+		transactionNeo4jIds = new HashMap<Long,Long>();
+		
 		String queryCount = "SELECT COUNT(*) AS COUNT FROM TX";
 		String queryNoLimit ="SELECT * FROM TX";
 		managePages(queryCount, queryNoLimit, new SqlToGraphTranslator(){
@@ -109,13 +239,14 @@ public class Neo4jBatchImporter {
 						Transaction.getHashPropertyName(), rs.getString("tx_hash")
 						);
 				long node = inserter.createNode( properties, NodeTypes.TRANSACTION);
-				inserter.createRelationship(node, 
-						blocks.get(Block.getIdPropertyName(),
-								rs.getLong("block_id")).getSingle(), RelTypes.BLOCK, null);
+				inserter.createRelationship(node, blockNeo4jIds.get(rs.getLong("block_id")),
+						RelTypes.BLOCK, null);
 				
 				// Add to index
 				transactions.add(node, properties);
 				
+				// Add to map
+				transactionNeo4jIds.put(rs.getLong("tx_id"), node);
 		    }
 
 			@Override
@@ -126,38 +257,40 @@ public class Neo4jBatchImporter {
 	}
 	
 	private void importTxOuts(){
+		addressNeo4jIds = new HashMap<String,Long>();
+		
 		String queryCount = "SELECT 61921025 AS COUNT";
 		String queryNoLimit ="SELECT * FROM TXOUT";
 		managePages(queryCount, queryNoLimit, new SqlToGraphTranslator(){
 		    public void createFromResultSet(ResultSet rs) throws SQLException
 		    {	
 		    	String address = rs.getString("address");
-		    	Long node = null;
-		    	Map<String,Object> properties = MapUtil.map(
-						Address.getAddressPropertyName(), address 
-						);
-		    	node = addresses.get(Address.getAddressPropertyName(),address).getSingle();
-		    	if (node==null){
-		    		node = inserter.createNode( properties, NodeTypes.ADDRESS);
-		    		// Add to index
-		    		addresses.add(node, properties);
+		    	long node = 0;
+		    	if (addressNeo4jIds.containsKey(address))
+		    		node = addressNeo4jIds.get(address);
+		    	else {	
+			    	Map<String,Object> properties = MapUtil.map(
+							Address.getAddressPropertyName(), address 
+							);
+					node = inserter.createNode( properties, NodeTypes.ADDRESS);
+					
+					// Add to index
+					addresses.add(node, properties);
+					
+					// Add address to map
+					addressNeo4jIds.put(rs.getString("address"), node);
 		    	}
-		    	
 				Map<String,Object> rproperties = MapUtil.map(
 						TxInOut.getTxOutIdPropertyName(), rs.getLong("txout_id"),
 						TxInOut.getAmountPropertyName(), rs.getInt("txout_value")
 						);
-				inserter.createRelationship(
-						transactions.get(
-								Transaction.getIdPropertyName(),rs.getLong("tx_id"))
-								.getSingle(), node, RelTypes.TXOUT, rproperties);		
-				
-				addresses.flush();
+				inserter.createRelationship( transactionNeo4jIds.get(rs.getLong("tx_id")), 
+						node, RelTypes.TXOUT, rproperties);		
 		    }
 
 			@Override
 			public void afterPage() {
-				//Already flushed
+				addresses.flush();
 			}
 		});
 	}
@@ -173,11 +306,8 @@ public class Neo4jBatchImporter {
 		    	Map<String,Object> r1properties = MapUtil.map(
 		    			TxInOut.getAmountPropertyName(), rs.getInt("txout_value") 
 						);
-		    	inserter.createRelationship( 
-		    			addresses.get(Address.getAddressPropertyName(), 
-		    					rs.getString("address")).getSingle(),
-		    			transactions.get(Transaction.getIdPropertyName(),
-		    					rs.getLong("tx_id")).getSingle(), 
+		    	inserter.createRelationship( addressNeo4jIds.get(rs.getString("address")),
+		    			transactionNeo4jIds.get(rs.getLong("tx_id")), 
 						RelTypes.TXIN, r1properties);
 		    	
 				Map<String,Object> r2properties = MapUtil.map(
@@ -186,15 +316,14 @@ public class Neo4jBatchImporter {
 						TxInOut.getTxInPositionPropertyName(), rs.getInt("txin_pos"),
 						TxInOut.getTxOutPositionPropertyName(), rs.getInt("txout_pos")
 						);
-				inserter.createRelationship( transactions.get(
-							Transaction.getIdPropertyName(),rs.getLong("tx_prev")).getSingle(), 
-						transactions.get(Transaction.getIdPropertyName(),
-		    					rs.getLong("tx_id")).getSingle(),
+				inserter.createRelationship( transactionNeo4jIds.get(rs.getLong("tx_prev")), 
+						transactionNeo4jIds.get(rs.getLong("tx_id")),
 						RelTypes.NEXTTX, r2properties);
 		    }
 
 			@Override
-			public void afterPage() {		
+			public void afterPage() {
+				//Nothing to flush
 			}
 		});
 	}
@@ -259,9 +388,7 @@ public class Neo4jBatchImporter {
 	}
 	
 	private void initBatchInserter(){
-		
 		Map<String,String> config = new HashMap<String,String>();
-		//TODO tuning config
 		config.put( "neostore.nodestore.db.mapped_memory", "100M" );
 		config.put( "neostore.relationshipstore.db.mapped_memory", "512M");
 		config.put( "neostore.propertystore.db.mapped_memory","50M");
@@ -276,18 +403,29 @@ public class Neo4jBatchImporter {
 		
 		blocks = indexProvider.nodeIndex(Block.getBlocksIndexName(),
 				MapUtil.stringMap("type","exact"));
-		blocks.setCacheCapacity(Block.getIdPropertyName(), 264268);
+		//blocks.setCacheCapacity(Block.getIdPropertyName(), 26426);
 		//TODO block timeline
 		
 		transactions = indexProvider.nodeIndex(Transaction.getTransactionsIndexName(),
 				MapUtil.stringMap("type","exact"));
-		transactions.setCacheCapacity(Transaction.getIdPropertyName(), 25529368);
+		//transactions.setCacheCapacity(Transaction.getIdPropertyName(), 2552936);
 		
 		addresses = indexProvider.nodeIndex(Address.getAddressesIndexName(),
 				MapUtil.stringMap("type","exact"));
-		addresses.setCacheCapacity(Address.getAddressPropertyName(), 19315226);
+		//addresses.setCacheCapacity(Address.getAddressPropertyName(), 1931522);
 		
 		
+	}
+	
+	private void shutdown(){
+		try {
+			sqliteConnection.close();
+		} catch (SQLException e) {
+			manageException(e);
+		}
+		
+		indexProvider.shutdown();
+		inserter.shutdown();
 	}
 	
 	private void manageException(Exception e){
