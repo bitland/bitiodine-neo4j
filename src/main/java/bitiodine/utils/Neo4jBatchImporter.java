@@ -33,7 +33,7 @@ public class Neo4jBatchImporter {
 	
 	
 	private Connection sqliteConnection;
-	private int limit=300000;
+	private int limit=600000;
 
 	public void start_import(){
 		
@@ -92,7 +92,7 @@ public class Neo4jBatchImporter {
 		    }
 
 			@Override
-			public void flushIndex() {
+			public void afterPage() {
 				blocks.flush();
 			}
 		});
@@ -119,14 +119,14 @@ public class Neo4jBatchImporter {
 		    }
 
 			@Override
-			public void flushIndex() {
+			public void afterPage() {
 				transactions.flush();
 			}
 		});
 	}
 	
 	private void importTxOuts(){
-		String queryCount = "SELECT COUNT(*) AS COUNT FROM TXOUT";
+		String queryCount = "SELECT 61921025 AS COUNT";
 		String queryNoLimit ="SELECT * FROM TXOUT";
 		managePages(queryCount, queryNoLimit, new SqlToGraphTranslator(){
 		    public void createFromResultSet(ResultSet rs) throws SQLException
@@ -156,13 +156,14 @@ public class Neo4jBatchImporter {
 		    }
 
 			@Override
-			public void flushIndex() {
+			public void afterPage() {
+				//Already flushed
 			}
 		});
 	}
 	
 	private void importTxIns(){
-		String queryCount = "SELECT COUNT(*) AS COUNT FROM TXIN";
+		String queryCount = "SELECT 54600900 AS COUNT";
 		String queryNoLimit ="SELECT TXIN.txin_id, TXIN.tx_id, TXIN.txin_pos, TXOUT.address, "+
 							"TXOUT.txout_value, TXOUT.tx_id AS tx_prev, TXOUT.txout_pos" +
 							" FROM TXIN LEFT JOIN TXOUT ON TXIN.txout_id=TXOUT.txout_id";
@@ -193,7 +194,7 @@ public class Neo4jBatchImporter {
 		    }
 
 			@Override
-			public void flushIndex() {		
+			public void afterPage() {		
 			}
 		});
 	}
@@ -220,7 +221,7 @@ public class Neo4jBatchImporter {
 					g.createFromResultSet(rs);
 		    		rowCounter++;
 				}
-				g.flushIndex();
+				g.afterPage();
 				
 				rs.close(); stmt.close();
 	    		System.out.println("Total "+rowCount+" Added "+rowCounter+" - "+
@@ -261,8 +262,8 @@ public class Neo4jBatchImporter {
 		
 		Map<String,String> config = new HashMap<String,String>();
 		//TODO tuning config
-		config.put( "neostore.nodestore.db.mapped_memory", "512M" );
-		config.put( "neostore.relationshipstore.db.mapped_memory", "1G");
+		config.put( "neostore.nodestore.db.mapped_memory", "100M" );
+		config.put( "neostore.relationshipstore.db.mapped_memory", "512M");
 		config.put( "neostore.propertystore.db.mapped_memory","50M");
 		config.put( "neostore.propertystore.db.strings.mapped_memory","100M");
 		config.put( "neostore.propertystore.db.arrays.mapped_memory","0M");
@@ -275,16 +276,16 @@ public class Neo4jBatchImporter {
 		
 		blocks = indexProvider.nodeIndex(Block.getBlocksIndexName(),
 				MapUtil.stringMap("type","exact"));
-		blocks.setCacheCapacity(Block.getIdPropertyName(), 300000);
+		blocks.setCacheCapacity(Block.getIdPropertyName(), 264268);
 		//TODO block timeline
 		
 		transactions = indexProvider.nodeIndex(Transaction.getTransactionsIndexName(),
 				MapUtil.stringMap("type","exact"));
-		transactions.setCacheCapacity(Transaction.getIdPropertyName(), 30000000);
+		transactions.setCacheCapacity(Transaction.getIdPropertyName(), 25529368);
 		
 		addresses = indexProvider.nodeIndex(Address.getAddressesIndexName(),
 				MapUtil.stringMap("type","exact"));
-		addresses.setCacheCapacity(Address.getAddressPropertyName(), 50000000);
+		addresses.setCacheCapacity(Address.getAddressPropertyName(), 19315226);
 		
 		
 	}

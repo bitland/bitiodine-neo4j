@@ -5,5 +5,5 @@ import java.sql.SQLException;
 
 public interface SqlToGraphTranslator {
 	public void createFromResultSet(ResultSet rs) throws SQLException;
-	public void flushIndex();
+	public void afterPage();
 }
