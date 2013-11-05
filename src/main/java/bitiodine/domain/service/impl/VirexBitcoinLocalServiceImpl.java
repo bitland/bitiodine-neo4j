@@ -61,53 +61,37 @@ public class VirexBitcoinLocalServiceImpl implements VirexBitcoinLocalService {
 		Long balance = iterator.next();
 		iterator.close();
 		
-//		Long balance= new Long(0);
-//		try (Transaction t = graphDb.beginTx()) {
-//			Node address_node = graphDb.findNodesByLabelAndProperty(Address.getLabel(), 
-//					Address.getAddressPropertyName(), address).iterator().next();
-//			Iterator <Relationship> edges = address_node.getRelationships().iterator();
-//			while (edges.hasNext()){
-//				Relationship r = edges.next();
-//				if (r.isType(RelType.TXOUT))
-//					balance+= (Long) r.getProperty(TxInOut.getAmountPropertyName());
-//				else
-//					balance-= (Long) r.getProperty(TxInOut.getAmountPropertyName());
-//			}
-//		}
-		
 		return balance;
 	}
 
-//	String cypher_query = "MATCH (a:ADDRESS)-[a2t]-(t:TRANSACTION), (t)-[:BLOCK]->(b) "
-//	+ "WHERE a.address=\""+address+"\" AND b.time<"+atdate
-//+ " RETURN a.address as ID, "
-//+ "sum(a2t.amount * CASE WHEN type(a2t)=\"TXOUT\" THEN 1 ELSE -1 END) as balance";
-//System.out.println(cypher_query);
-//ResourceIterator<Long> iterator = executionEngine.execute(cypher_query).columnAs("balance");
-//if (iterator.hasNext())
-// balance = iterator.next();
-//iterator.close();
+
 	
 	@Override
 	public Long balance(String address, Long atdate) {
 		Long balance = new Long(0);
-		int i = 0;
 		if (atdate>=0){
 			try (Transaction t = graphDb.beginTx()) {
-				Node address_node = graphDb.findNodesByLabelAndProperty(Address.getLabel(), 
-						Address.getAddressPropertyName(), address).iterator().next();
-				Iterator <Relationship> edges = address_node.getRelationships().iterator();
-				while (edges.hasNext()){
-					Relationship r = edges.next();
-					if (r.isType(RelType.TXOUT))
-						balance+= (Long) r.getProperty(TxInOut.getAmountPropertyName());
-					else
-						balance-= (Long) r.getProperty(TxInOut.getAmountPropertyName());
-					i++;
-					if ((i%10000)==0) {
-						System.out.println(i);
-					}
-				}
+				
+				String cypher_query = "MATCH (a:ADDRESS)-[a2t]-(t:TRANSACTION), (t)-[:BLOCK]->(b) "
+					+ "WHERE a.address=\""+address+"\" AND b.time<"+atdate
+					+ " RETURN a.address as ID,"
+					+ " sum(a2t.amount * CASE WHEN type(a2t)=\"TXOUT\" THEN 1 ELSE -1 END) as balance";
+				ResourceIterator<Long> iterator = executionEngine.execute(cypher_query).columnAs("balance");
+				if (iterator.hasNext())
+					balance = iterator.next();
+				iterator.close();
+							
+//				Node address_node = graphDb.findNodesByLabelAndProperty(Address.getLabel(), 
+//						Address.getAddressPropertyName(), address).iterator().next();
+//				Iterator <Relationship> edges = address_node.getRelationships().iterator();
+//				while (edges.hasNext()){
+//					Relationship r = edges.next();
+//					if (r.isType(RelType.TXOUT))
+//						balance+= (Long) r.getProperty(TxInOut.getAmountPropertyName());
+//					else
+//						balance-= (Long) r.getProperty(TxInOut.getAmountPropertyName());
+//				}
+				
 			}	
 		}
 		return balance;
