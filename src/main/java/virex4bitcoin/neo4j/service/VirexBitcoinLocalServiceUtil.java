@@ -1,8 +1,6 @@
-package bitiodine.domain.service;
+package virex4bitcoin.neo4j.service;
 
 import org.neo4j.graphdb.GraphDatabaseService;
-
-import bitiodine.domain.service.impl.VirexBitcoinLocalServiceImpl;
 
 public class VirexBitcoinLocalServiceUtil {
 	private static VirexBitcoinLocalService _service = null;

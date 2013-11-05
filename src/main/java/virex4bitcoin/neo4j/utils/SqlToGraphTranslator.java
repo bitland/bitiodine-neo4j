@@ -1,4 +1,4 @@
-package bitiodine.utils;
+package virex4bitcoin.neo4j.utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

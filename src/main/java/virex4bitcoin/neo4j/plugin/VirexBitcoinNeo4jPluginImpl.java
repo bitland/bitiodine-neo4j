@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package bitiodine.plugins;
+package virex4bitcoin.neo4j.plugin;
 
 import java.util.List;
 
@@ -29,18 +29,16 @@ import org.neo4j.server.plugins.PluginTarget;
 import org.neo4j.server.plugins.ServerPlugin;
 import org.neo4j.server.plugins.Source;
 
-import bitiodine.domain.service.VirexBitcoinLocalServiceUtil;
+import virex4bitcoin.neo4j.service.VirexBitcoinLocalServiceUtil;
 
 @Description( "An extension to the Neo4j Server for feeding neo4j graph db. All operations are idempotent." )
-public class VirexBitcoinPluginImpl extends ServerPlugin implements VirexBitcoinPlugin
+public class VirexBitcoinNeo4jPluginImpl extends ServerPlugin
 {
-	@Override
 	public Long flow(GraphDatabaseService graphDb, String payer, String payee) {
 		// TODO Auto-generated method stub
 		return VirexBitcoinLocalServiceUtil.flow(graphDb, payer, payee);
 	}
 	
-	@Override
 	@Name("flow")
 	@Description("Gets the exchanged amount between two bitcoin addresses in a given period"
 			+ "of time")
@@ -59,22 +57,16 @@ public class VirexBitcoinPluginImpl extends ServerPlugin implements VirexBitcoin
 		return VirexBitcoinLocalServiceUtil.flow(graphDb, payer, payee, fromdate, todate);
 	}
 
-	@Override
 	public Long balance(GraphDatabaseService graphDb, String address) {
 		return VirexBitcoinLocalServiceUtil.balance(graphDb, address);
 	}
 
-	@Override
 	public Long balance(GraphDatabaseService graphDb, String address,
 			Long attime) {
 		return VirexBitcoinLocalServiceUtil.balance(graphDb, address, attime);
 	}
 
 	
-	
-
-	
-	@Override
 	@Name("addTransactionNode")
 	@Description("Adds a Transaction node to graph db")
     @PluginTarget( GraphDatabaseService.class )

@@ -1,4 +1,4 @@
-package bitiodine.domain.model;
+package virex4bitcoin.neo4j.model;
 
 public class TxInOut {
 	

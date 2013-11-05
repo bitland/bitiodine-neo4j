@@ -1,4 +1,4 @@
-package bitiodine.utils;
+package virex4bitcoin.neo4j.utils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,16 +17,16 @@ import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
 import org.sqlite.SQLiteJDBCLoader;
 
-import bitiodine.domain.model.Address;
-import bitiodine.domain.model.Block;
-import bitiodine.domain.model.Transaction;
-import bitiodine.domain.model.TxInOut;
-import bitiodine.domain.model.neo4j.NodeType;
-import bitiodine.domain.model.neo4j.RelType;
+import virex4bitcoin.neo4j.model.Address;
+import virex4bitcoin.neo4j.model.Block;
+import virex4bitcoin.neo4j.model.NodeType;
+import virex4bitcoin.neo4j.model.RelType;
+import virex4bitcoin.neo4j.model.Transaction;
+import virex4bitcoin.neo4j.model.TxInOut;
 
 public class Neo4jBatchImporter {
-	private final String NEO4J_PATH="blockchain/graph.db";
-	private final String SQLITE_PATH="blockchain/blockchain_small.sqlite";
+	private final String NEO4J_PATH="../blockchain/graph.db";
+	private final String SQLITE_PATH="../blockchain/blockchain_small.sqlite";
 	
 	private BatchInserter inserter =  null;
 	

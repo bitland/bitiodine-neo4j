@@ -1,45 +1,14 @@
-package bitiodine.domain.service.impl;
-
-import java.util.Iterator;
+package virex4bitcoin.neo4j.service;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-
-import bitiodine.domain.model.Address;
-import bitiodine.domain.model.TxInOut;
-import bitiodine.domain.model.neo4j.RelType;
-import bitiodine.domain.service.VirexBitcoinLocalService;
-import bitiodine.plugins.VirexBitcoinPlugin;
-import bitiodine.plugins.VirexBitcoinPluginImpl;
 
 public class VirexBitcoinLocalServiceImpl implements VirexBitcoinLocalService {
 	private GraphDatabaseService graphDb = null;
 	private ExecutionEngine executionEngine = null;
-	
-	
-	public static void main(String args[]){
-		GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase( "blockchain/graphcopy.db" );
-		VirexBitcoinPlugin graphPlugin = new VirexBitcoinPluginImpl();
-		String address = "1Q6DgPKUn1zciWKye9A5UkXWRTmupqFt3";
-		Long attime = new Long(1383212634) ;
-		
-		for (int i=0;i<5;i++){
-			long startTime = System.currentTimeMillis() ;
-			Long balance = graphPlugin.balance(graphDb,address,attime) ;
-			long stopTime = System.currentTimeMillis() ;
-			long elapsedTime = stopTime - startTime;
-			System.out.println("BalanceTest address:"+address+" at time:"+attime+" balance:"+balance+" ET:"+elapsedTime+" ms") ;
-		}
-		
-		graphDb.shutdown();
-		    
-	}
-	
+
 	public VirexBitcoinLocalServiceImpl(GraphDatabaseService graphDb) {
 		this.graphDb=graphDb;
 		executionEngine = new ExecutionEngine(graphDb);

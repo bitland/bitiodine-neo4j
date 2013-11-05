@@ -1,4 +1,4 @@
-package bitiodine.domain.service;
+package virex4bitcoin.neo4j.service;
 
 
 public interface VirexBitcoinLocalService {

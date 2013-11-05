@@ -1,8 +1,6 @@
-package bitiodine.domain.model;
+package virex4bitcoin.neo4j.model;
 
 import org.neo4j.graphdb.Node;
-
-import bitiodine.domain.model.neo4j.Neo4jDomainEntity;
 
 public class Block extends Neo4jDomainEntity {
 

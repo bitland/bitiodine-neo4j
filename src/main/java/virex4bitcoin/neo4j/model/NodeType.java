@@ -1,4 +1,4 @@
-package bitiodine.domain.model.neo4j;
+package virex4bitcoin.neo4j.model;
 
 import org.neo4j.graphdb.Label;
 

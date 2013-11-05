@@ -1,13 +1,9 @@
-package bitiodine.domain.model;
+package virex4bitcoin.neo4j.model;
 
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-
-import bitiodine.domain.model.neo4j.Neo4jDomainEntity;
-import bitiodine.domain.model.neo4j.NodeType;
-import bitiodine.domain.model.neo4j.RelType;
 
 public class Address extends Neo4jDomainEntity
 {    

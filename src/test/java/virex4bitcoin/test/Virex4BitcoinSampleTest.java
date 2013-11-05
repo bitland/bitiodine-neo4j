@@ -1,4 +1,4 @@
-package bitiodinetest.plugins;
+package virex4bitcoin.test;
 
 import static org.junit.Assert.assertTrue;
 
@@ -10,8 +10,8 @@ import org.junit.runners.JUnit4;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
-import bitiodine.plugins.VirexBitcoinPlugin;
-import bitiodine.plugins.VirexBitcoinPluginImpl;
+import virex4bitcoin.Virex4Bitcoin;
+import virex4bitcoin.neo4j.Virex4BitcoinNeo4jImpl;
 
 /**
  * Unit test for simple App.
@@ -21,12 +21,12 @@ public class Virex4BitcoinSampleTest
 {
 	private static final String DB_PATH = "blockchain/graph.db";
     private static GraphDatabaseService graphDb = null;
-    private static VirexBitcoinPlugin graphPlugin = null;
+    private static Virex4Bitcoin virex4bitcoin = null;
 
 	@BeforeClass 
 	public static void startGraphDb(){
     	graphDb = new GraphDatabaseFactory().newEmbeddedDatabase( DB_PATH );
-        graphPlugin = new VirexBitcoinPluginImpl();
+    	virex4bitcoin = new Virex4BitcoinNeo4jImpl(graphDb);
 	}
 	
 	@AfterClass 
