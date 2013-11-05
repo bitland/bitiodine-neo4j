@@ -1,11 +1,13 @@
 group balance[us=true] {
 	String address = ["1Q6DgPKUn1zciWKye9A5UkXWRTmupqFt3","abcde","1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa","1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp"];
 	Long attime = new Long([1383264000,1233446400,1306886400]); 
+	Long balance = new Long(0);
 	
 	System.out.println("BalanceTest address:"+address+" at time:"+attime+"...");
 	long startTime = System.currentTimeMillis();
-   	Long balance = graphPlugin.balance(graphDb, address, attime);
+   	balance = graphPlugin.balance(graphDb, address, attime){1,5};
    	long stopTime = System.currentTimeMillis();
 	long elapsedTime = stopTime - startTime;
     System.out.println("BalanceTest address:"+address+" at time:"+attime+" balance:"+balance+" ET:"+elapsedTime+" ms");
+   
 }

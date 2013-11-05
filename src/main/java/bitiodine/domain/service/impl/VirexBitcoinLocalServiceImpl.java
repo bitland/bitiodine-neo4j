@@ -28,7 +28,7 @@ public class VirexBitcoinLocalServiceImpl implements VirexBitcoinLocalService {
 		String address = "1Q6DgPKUn1zciWKye9A5UkXWRTmupqFt3";
 		Long attime = new Long(1383212634) ;
 		
-		for (int i=1;i<5;i++){
+		for (int i=0;i<5;i++){
 			long startTime = System.currentTimeMillis() ;
 			Long balance = graphPlugin.balance(graphDb,address,attime) ;
 			long stopTime = System.currentTimeMillis() ;
@@ -93,6 +93,7 @@ public class VirexBitcoinLocalServiceImpl implements VirexBitcoinLocalService {
 		Long balance = new Long(0);
 		int i = 0;
 		if (atdate>=0){
+			try (Transaction t = graphDb.beginTx()) {
 				Node address_node = graphDb.findNodesByLabelAndProperty(Address.getLabel(), 
 						Address.getAddressPropertyName(), address).iterator().next();
 				Iterator <Relationship> edges = address_node.getRelationships().iterator();
@@ -107,7 +108,7 @@ public class VirexBitcoinLocalServiceImpl implements VirexBitcoinLocalService {
 						System.out.println(i);
 					}
 				}
-			
+			}	
 		}
 		return balance;
 	}
