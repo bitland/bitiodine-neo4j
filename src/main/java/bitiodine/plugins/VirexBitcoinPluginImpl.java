@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.server.plugins.Description;
 import org.neo4j.server.plugins.Name;
 import org.neo4j.server.plugins.Parameter;
@@ -30,50 +29,50 @@ import org.neo4j.server.plugins.PluginTarget;
 import org.neo4j.server.plugins.ServerPlugin;
 import org.neo4j.server.plugins.Source;
 
-import bitiodine.domain.model.Address;
-import bitiodine.domain.model.Cluster;
-import bitiodine.domain.model.Transaction;
-import bitiodine.domain.service.AddressLocalServiceUtil;
-import bitiodine.domain.service.ClusterLocalServiceUtil;
-import bitiodine.domain.service.TransactionLocalServiceUtil;
+import bitiodine.domain.service.VirexBitcoinLocalServiceUtil;
 
 @Description( "An extension to the Neo4j Server for feeding neo4j graph db. All operations are idempotent." )
-public class GraphPluginImpl extends ServerPlugin implements GraphPlugin
-{	
+public class VirexBitcoinPluginImpl extends ServerPlugin implements VirexBitcoinPlugin
+{
 	@Override
-    @Name("addAddressNode")
-    @Description("Adds an Address node to graph db")
-    @PluginTarget( GraphDatabaseService.class )
-    public Node addAddressNode(	@Source GraphDatabaseService graphDb, 
-    		@Description( "The address of the node to add." )
-    		@Parameter( name = "address" ) String address) {
-    	Address a = AddressLocalServiceUtil.getOrCreateAddress(graphDb, address);
-    	return a.getUnderlyingNode();
-    }
-    
+	public Long flow(GraphDatabaseService graphDb, String payer, String payee) {
+		// TODO Auto-generated method stub
+		return VirexBitcoinLocalServiceUtil.flow(graphDb, payer, payee);
+	}
+	
 	@Override
-    @Name("addClusterNode")
-    @Description("Adds a Cluster node to graph db")
-    @PluginTarget( GraphDatabaseService.class )
-	public Node addClusterNode( @Source GraphDatabaseService graphDb,
-			@Description( "The id of the cluster to add." )
-			@Parameter( name = "cluster-id" ) String clusterId) {
-		Cluster c = ClusterLocalServiceUtil.getOrCreateCluster(graphDb, clusterId);
-		return c.getUnderlyingNode();
+	@Name("flow")
+	@Description("Gets the exchanged amount between two bitcoin addresses in a given period"
+			+ "of time")
+	@PluginTarget( GraphDatabaseService.class )
+	public Long flow(@Source GraphDatabaseService graphDb,
+			@Description( "Payer address" )
+			@Parameter( name = "payer" ) String payer, 
+			@Description( "Payee address" )
+			@Parameter( name = "payee" ) String payee, 
+			@Description( "From date (unix timestamp)" )
+			@Parameter( name = "fromdate" ) Long fromdate,
+			@Description( "To date (unix timestamp)" )
+			@Parameter( name = "todate" ) Long todate) 
+	{
+		// TODO check input parameters
+		return VirexBitcoinLocalServiceUtil.flow(graphDb, payer, payee, fromdate, todate);
 	}
 
 	@Override
-    @Name("linkAddressToCluster")
-    @Description("Links an Address node to a Cluster node")
-    @PluginTarget( GraphDatabaseService.class )
-	public Relationship linkAddressToCluster(@Source GraphDatabaseService graphDb, 
-			@Description( "The address to link." )
-			@Parameter( name = "address" ) String address, 
-			@Description( "The id of the cluster to link to." )
-			@Parameter( name = "cluster-id" ) String clusterId) {
-		Address a = AddressLocalServiceUtil.linkAddressToCluster(graphDb, address, clusterId);
-		return a.getClusterRelationship();
+	public Long balance(GraphDatabaseService graphDb, String address) {
+		return VirexBitcoinLocalServiceUtil.balance(graphDb, address);
 	}
+
+	@Override
+	public Long balance(GraphDatabaseService graphDb, String address,
+			Long attime) {
+		return VirexBitcoinLocalServiceUtil.balance(graphDb, address, attime);
+	}
+
+	
+	
+
 	
 	@Override
 	@Name("addTransactionNode")
@@ -98,12 +97,14 @@ public class GraphPluginImpl extends ServerPlugin implements GraphPlugin
 			@Parameter( name = "timestamp" ) Long timestamp){
 		
 		//TODO Check input parameters
-		Transaction t = TransactionLocalServiceUtil.getOrCreateTransaction(graphDb, 
+		/*
+		Transaction t = TransactionLocalServiceUtil.getOrCreateTransaction(graphDb,
 				txHash, txIns, amountsIn, txPrevs, txOuts, amountsOut, 
 				blockHash, timestamp);
-		
 		return t.getUnderlyingNode();
+		*/
+		
+		return null; 
 	}
-
     
 }

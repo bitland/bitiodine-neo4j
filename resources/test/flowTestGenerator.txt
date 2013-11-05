@@ -1,0 +1,13 @@
+
+group flow[us=true] {
+	String payer = ["1Q6DgPKUn1zciWKye9A5UkXWRTmupqFt3","15HJgkvj6roZQvNRC3pUJNKP2YgfEuD8wo","abcde","1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp"];
+    String payee = ["12S8yhyGaTdVtE31zdnPNFsLQ9aAitQRYA","1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp","15HJgkvj6roZQvNRC3pUJNKP2YgfEuD8wo","abcde"];
+    Long fromdate = new Long([1230768000,1357603200]);
+    Long todate = new Long([1383212634,1360281600]);
+    long startTime = System.currentTimeMillis();
+    Long flow = graphPlugin.flow(graphDb, payer, payee, fromdate, todate);
+       	long stopTime = System.currentTimeMillis();
+	long elapsedTime = stopTime - startTime;
+	System.out.println("FlowTest payer:"+payer+"+ payee:"+payee+" from date:"+fromdate+"to date:"+todate+" flow:"+flow+" ET:"+elapsedTime+" ms");	
+}
+

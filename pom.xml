@@ -49,41 +49,5 @@
     </dependency>
   
   </dependencies>
-  
-  <build>
-  	<plugins>
-  		<plugin>
-        	<groupId>org.codehaus.mojo</groupId>
-        	<artifactId>exec-maven-plugin</artifactId>
-        	<version>1.2.1</version>
-        	<executions>
-          		<execution>
-          		    <id>deploy-and-restart</id>
-          			<phase>install</phase>
-            		<goals>
-              			<goal>exec</goal>
-            		</goals>
-            		<configuration>
-          				<executable>utils/deploy-and-restart.sh</executable>
-          				<workingDirectory>.</workingDirectory>
-          				<arguments></arguments>
-        			</configuration>
-          		</execution>
-          		<execution>
-          		    <id>shutdown-neo4j</id>
-          			<phase>post-clean</phase>
-            		<goals>
-              			<goal>exec</goal>
-            		</goals>
-            		<configuration>
-          				<executable>neo4j-community-2.0.0-M05/bin/neo4j</executable>
-          				<workingDirectory>.</workingDirectory>
-          				<commandlineArgs>stop</commandlineArgs>
-        			</configuration>
-          		</execution>
-        	</executions>
-      	</plugin>
-  	</plugins>
-  </build>
 
 </project>

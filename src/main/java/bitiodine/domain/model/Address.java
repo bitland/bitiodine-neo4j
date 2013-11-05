@@ -1,11 +1,13 @@
 package bitiodine.domain.model;
 
 import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import bitiodine.domain.model.neo4j.Neo4jDomainEntity;
-import bitiodine.domain.model.neo4j.RelTypes;
+import bitiodine.domain.model.neo4j.NodeType;
+import bitiodine.domain.model.neo4j.RelType;
 
 public class Address extends Neo4jDomainEntity
 {    
@@ -23,7 +25,7 @@ public class Address extends Neo4jDomainEntity
     	Relationship clusterRelationship = null;
     	try (org.neo4j.graphdb.Transaction tx = this.getUnderlyingNode().getGraphDatabase().beginTx()){
     		clusterRelationship = this.getUnderlyingNode()
-    				.getSingleRelationship(RelTypes.CLUSTER,Direction.OUTGOING);
+    				.getSingleRelationship(RelType.CLUSTER,Direction.OUTGOING);
     		tx.success();
     	}
     	return clusterRelationship;
@@ -39,13 +41,9 @@ public class Address extends Neo4jDomainEntity
 		return "address";
 	}
 	
-	//Index names static methods
-	public static String getUniqueIndexName(){
-		return "addresses";
+	public static Label getLabel(){
+		return NodeType.ADDRESS;
 	}
-
-	public static String getAddressesIndexName() {
-		return "addresses";
-	}
+	
     
 }

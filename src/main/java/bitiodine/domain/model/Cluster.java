@@ -11,12 +11,8 @@ public class Cluster extends Neo4jDomainEntity{
     }
 	
 	//Property names static methods
-	public static String getClusterPropertyName(){
+	public static String getIdPropertyName(){
 		return "cluster";
 	}
 	
-	//Index names static methods
-	public static String getUniqueIndexName(){
-		return "clusters";
-	}
 }

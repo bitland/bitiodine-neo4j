@@ -26,16 +26,9 @@ public class Block extends Neo4jDomainEntity {
 	}
 	
 	//Index names static methods
-	public static String getUniqueIndexName(){
-		return "blocks";
-	}
-	public static String getBlockHashesIndexName(){
-		return "blockhashes";
-	}
+
 	public static String getTimelineIndexName(){
-		return "timestamps";
+		return "blocktimeline";
 	}
-	public static String getBlocksIndexName(){
-		return "blocks";
-	}
+	
 }

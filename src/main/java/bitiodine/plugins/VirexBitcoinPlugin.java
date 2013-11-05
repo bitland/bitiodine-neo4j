@@ -4,19 +4,18 @@ import java.util.List;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 
-public interface GraphPlugin {
-	Node addAddressNode( GraphDatabaseService graphDb, String address);
-	
-	Node addClusterNode( GraphDatabaseService graphDb, String cluster_id);
-	
-	Relationship linkAddressToCluster(GraphDatabaseService graphDb, 
-			String address, String cluster_id);
+public interface VirexBitcoinPlugin {
 	
 	Node addTransactionNode(GraphDatabaseService graphDb, String txHash,
 			List<String> txIns, List<Long> amountsIn, List<String> txPrevs,
 			List<String> txOuts, List<Long> amountsOut, String block_hash,
 			Long timestamp);
+	
+	Long flow(GraphDatabaseService graphDb, String payer, String payee);
+	Long flow(GraphDatabaseService graphDb, String payer, String payee, Long fromdate, Long todate);
+
+	Long balance(GraphDatabaseService graphDb, String address);
+	Long balance(GraphDatabaseService graphDb, String address, Long attime);
 	
 }

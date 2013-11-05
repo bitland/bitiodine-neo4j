@@ -1,3 +1,26 @@
+MATCH (a:ADDRESS)-[a2t]-(t:TRANSACTION), (t)-[:BLOCK]->(b) 
+WHERE a.address="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa" 
+AND b.time<1233446400
+RETURN a.address as ID, sum(a2t.amount * CASE WHEN type(a2t)="TXOUT" THEN 1 ELSE -1 END) as balance
+
+
+
+
+MATCH (n:ADDRESS),(m:ADDRESS)
+WHERE n.address="1A1hJJ9HMuDv5xmzYTFbebZaPsbZSDaWwD" AND m.address="13PWKrMYFCYWETxw59DHZrJGbdBsmGwQqR"
+RETURN m,n
+
+MATCH (a:ADDRESS)-[a2t]-(t:TRANSACTION) 
+WHERE a.address="1933phfhK3ZgFQNLGSDXvqCn32k2buXY8a" 
+RETURN sum(a2t.amount * CASE WHEN type(a2t)="TXOUT" THEN +1 ELSE -1 END)/100000000 as balance
+
+MATCH (payer:ADDRESS),(payee:ADDRESS),(payer)-[:TXIN]->(t)-[r2:TXOUT]->(payee), (t)-[:BLOCK]->(b)
+WHERE payer.address="1Q6DgPKUn1zciWKye9A5UkXWRTmupqFt3" 
+AND payee.address="12S8yhyGaTdVtE31zdnPNFsLQ9aAitQRYA"
+AND b.time<1383140328 AND  b.time>0
+RETURN sum(r2.amount) AS flow
+
+
 START a=node(*) 
 MATCH a:ADDRESS, a-[txins?:TXIN]->t1, a<-[txouts:TXOUT]-t2 
 RETURN a.address AS address,sum(txouts.amount)-sum(txins.amount) AS balance 
