@@ -1,0 +1,22 @@
+db.transactions.aggregate(
+	{$match: {
+		"participants.address":"18hNdgPYi3ZQQhmCLb22gGPZ671X4oUhLR",
+		time:{$lte: 1317034821}
+	}},
+	{$project: {
+		_id:0, "participants":1,
+	}},
+	{$unwind: "$participants"
+	},
+	{$group: {
+		_id: "$participants.address",
+		balance: {$sum: "$participants.value"},
+	}},
+	{$match: {
+		"_id":"18hNdgPYi3ZQQhmCLb22gGPZ671X4oUhLR"
+	}},
+	{$project: {
+		_id:0, "balance":1,
+	}}
+)
+

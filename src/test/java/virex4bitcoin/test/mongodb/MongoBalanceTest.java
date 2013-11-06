@@ -1,5 +1,6 @@
-package virex4bitcoin.test.neo4j;
+package virex4bitcoin.test.mongodb;
 
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.logging.Logger;
@@ -10,25 +11,41 @@ import org.junit.Test; // JUnit4
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import virex4bitcoin.Virex4Bitcoin;
-import virex4bitcoin.neo4j.Virex4BitcoinNeo4jImpl;
+import virex4bitcoin.mongodb.Virex4BitcoinMongoImpl;
+
+import com.mongodb.MongoClient;
 
 @RunWith(Parameterized.class)
-public class Neo4jBalanceTest 
- {
+public class MongoBalanceTest {
 	final static Logger logger = Logger.getLogger("Neo4jBalanceTest");
 			
-	private static final String DB_PATH = "../blockchain/graph.db";
-    private static GraphDatabaseService graphDb = null;
+    private static MongoClient mongoClient = null;
     private static Virex4Bitcoin virex4bitcoin = null;
     
     private String address;
     private Long attime;
     
-    public Neo4jBalanceTest(String address, long attime){
+	@BeforeClass 
+	public static void startGraphDb(){
+		logger.info("starting mongoClient...");
+		try {
+			mongoClient = new MongoClient();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+        virex4bitcoin = new Virex4BitcoinMongoImpl(mongoClient);
+	}
+	
+	@AfterClass 
+	public static void shutdownGraphDb(){
+		logger.info("shutting down mongoClient...");
+		mongoClient.close();
+	}
+    
+    public MongoBalanceTest(String address, long attime){
     	this.address=address;
     	this.attime= new Long(attime);
     }
@@ -48,27 +65,7 @@ public class Neo4jBalanceTest
     	});
     }
     
-	@BeforeClass 
-	public static void startGraphDb(){
-		logger.info("starting GraphDb...");
-    	graphDb = new GraphDatabaseFactory().newEmbeddedDatabase( DB_PATH );
-        Runtime.getRuntime().addShutdownHook( new Thread()
-        {
-            @Override
-            public void run()
-            {
-            	logger.info("shutting down GraphDb...");
-                graphDb.shutdown();
-            }
-        } );
-        virex4bitcoin = new Virex4BitcoinNeo4jImpl(graphDb);
-	}
-	
-	@AfterClass 
-	public static void shutdownGraphDb(){
-		logger.info("shutting down GraphDb...");
-		graphDb.shutdown();
-	}
+
 	
 	private void calculateBalance(){
     	System.out.println("testNeo4jBalance address:"+address+" at time:"+attime+"...");

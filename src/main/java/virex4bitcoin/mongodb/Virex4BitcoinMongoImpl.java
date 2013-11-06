@@ -1,8 +1,17 @@
-package virex4bitcoin.mongo;
+package virex4bitcoin.mongodb;
 
 import virex4bitcoin.Virex4Bitcoin;
 
+import com.mongodb.DBCollection;
+import com.mongodb.MongoClient;
+
 public class Virex4BitcoinMongoImpl implements Virex4Bitcoin{
+	
+	DBCollection transactions;
+	
+	public Virex4BitcoinMongoImpl(MongoClient mongoClient){
+		this.transactions = mongoClient.getDB("virex4bitcoin").getCollection("transactions");
+	}
 
 	@Override
 	public Long flow(String payer, String payee) {
@@ -18,14 +27,14 @@ public class Virex4BitcoinMongoImpl implements Virex4Bitcoin{
 
 	@Override
 	public Long balance(String address) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.balance(address,System.currentTimeMillis()/1000);
 	}
 
 	@Override
 	public Long balance(String address, Long attime) {
-		// TODO Auto-generated method stub
-		return null;
+		long balance = 0;
+		balance = transactions.count();
+		return new Long(balance);
 	}
 
 }

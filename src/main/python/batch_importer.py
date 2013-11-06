@@ -14,7 +14,8 @@ cursor = connection.cursor()
 
 
 # Start transaction, set to 1 to start from the beginning
-start=db.transactions.find().count()
+start=db.transactions.find().count()+1
+#start=1
 if (start <= 1):
     db.drop_collection('transactions')
     start=1
@@ -22,8 +23,7 @@ collection = db.transactions
 
 # Ensure indexes
 collection.ensure_index("tx_id")
-collection.ensure_index("payers.address")
-collection.ensure_index("payees.address")
+collection.ensure_index("participants.address")
 collection.ensure_index("time")
 
 # Transactions
@@ -33,14 +33,13 @@ def txrow2transaction(row):
     transaction = {"tx_id": row['tx_id'],
                    "hash" : row['tx_hash'],
                    "time": row['time'],
-                   "payees": list(map(inoutrow2inouts, cursor2.execute("SELECT * FROM TXOUT WHERE tx_id=?", (txid,) ).fetchall())),
-                   "payers" : list(map(inoutrow2inouts, cursor2.execute("SELECT * FROM TXIN LEFT JOIN TXOUT ON TXIN.txout_id=TXOUT.txout_id WHERE TXIN.tx_id=?", (txid,) ).fetchall()))
-                   }
+                   "participants": list(map(inoutrow2inouts, cursor2.execute("SELECT address,txout_value,1 AS sign FROM TXOUT WHERE tx_id=? UNION SELECT address,txout_value,-1 AS sign FROM TXIN LEFT JOIN TXOUT ON TXIN.txout_id=TXOUT.txout_id WHERE TXIN.tx_id=?;", (txid,txid,) ).fetchall())),
+                 }
     return transaction
 
 def inoutrow2inouts(row):
     out={"address" : row['address'],
-         "value" : row['txout_value']
+         "value" : row['txout_value']*row['sign']
          }
     return out
 
