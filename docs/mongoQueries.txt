@@ -1,6 +1,6 @@
 db.transactions.aggregate(
 	{$match: {
-		"participants.address":"18hNdgPYi3ZQQhmCLb22gGPZ671X4oUhLR",
+		"participants.address":"1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
 		time:{$lte: 1317034821}
 	}},
 	{$project: {
@@ -13,10 +13,25 @@ db.transactions.aggregate(
 		balance: {$sum: "$participants.value"},
 	}},
 	{$match: {
-		"_id":"18hNdgPYi3ZQQhmCLb22gGPZ671X4oUhLR"
+		"_id":"1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
 	}},
 	{$project: {
 		_id:0, "balance":1,
 	}}
 )
 
+ 		
+ 		
+ 		
+ 		
+ 		
+ 		
+ 		
+ 		
+ 		
+ 		
+ 		
+ 		
+ 		
+ 		
+ 		

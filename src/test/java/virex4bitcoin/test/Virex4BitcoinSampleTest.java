@@ -16,7 +16,7 @@ import virex4bitcoin.neo4j.Virex4BitcoinNeo4jImpl;
 /**
  * Unit test for simple App.
  */
-@RunWith(JUnit4.class)
+//@RunWith(JUnit4.class)
 public class Virex4BitcoinSampleTest
 {
 	private static final String DB_PATH = "blockchain/graph.db";

@@ -13,13 +13,13 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import virex4bitcoin.Virex4Bitcoin;
-import virex4bitcoin.mongodb.Virex4BitcoinMongoImpl;
+import virex4bitcoin.mongodb.Virex4BitcoinMongodbImpl;
 
 import com.mongodb.MongoClient;
 
 @RunWith(Parameterized.class)
-public class MongoBalanceTest {
-	final static Logger logger = Logger.getLogger("Neo4jBalanceTest");
+public class MongodbBalanceTest {
+	final static Logger logger = Logger.getLogger("MongodbBalanceTest");
 			
     private static MongoClient mongoClient = null;
     private static Virex4Bitcoin virex4bitcoin = null;
@@ -36,7 +36,7 @@ public class MongoBalanceTest {
 			e.printStackTrace();
 			System.exit(0);
 		}
-        virex4bitcoin = new Virex4BitcoinMongoImpl(mongoClient);
+        virex4bitcoin = new Virex4BitcoinMongodbImpl(mongoClient);
 	}
 	
 	@AfterClass 
@@ -45,7 +45,7 @@ public class MongoBalanceTest {
 		mongoClient.close();
 	}
     
-    public MongoBalanceTest(String address, long attime){
+    public MongodbBalanceTest(String address, long attime){
     	this.address=address;
     	this.attime= new Long(attime);
     }
@@ -68,38 +68,38 @@ public class MongoBalanceTest {
 
 	
 	private void calculateBalance(){
-    	System.out.println("testNeo4jBalance address:"+address+" at time:"+attime+"...");
+    	System.out.println("testMongodbBalance address:"+address+" at time:"+attime+"...");
 	   	Long balance = virex4bitcoin.balance(address,attime);
 	    System.out.println("BalanceTest address:"+address+" at time:"+attime+" balance:"+balance) ;
 	}
 	
     @Test
- 	public void testNeo4jBalance_0() {
+ 	public void testBalance_0() {
     	this.calculateBalance();
   	}
     
     @Test
- 	public void testNeo4jBalance_1() {
+ 	public void testBalance_1() {
     	this.calculateBalance();
   	}
     
     @Test
- 	public void testNeo4jBalance_2() {
+ 	public void testBalance_2() {
     	this.calculateBalance();
   	}
     
     @Test
- 	public void testNeo4jBalance_3() {
+ 	public void testBalance_3() {
     	this.calculateBalance();
   	}
     
     @Test
- 	public void testNeo4jBalance_4() {
+ 	public void testBalance_4() {
     	this.calculateBalance();
   	}
     
     @Test
- 	public void testNeo4jBalance_5() {
+ 	public void testBalance_5() {
     	this.calculateBalance();
   	}
 	

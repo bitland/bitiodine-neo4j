@@ -1,0 +1,8 @@
+SELECT sum(txout_value) AS pos
+FROM TXOUT JOIN TX ON TXOUT.tx_id=TX.tx_id JOIN BLOCKS ON TX.block_id=BLOCKS.block_id 
+WHERE address="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa" AND time<1306886400
+
+SELECT ifnull(sum(-txout_value),0) AS neg
+FROM TXIN LEFT JOIN TXOUT ON TXIN.txout_id=TXOUT.txout_id JOIN TX ON TXOUT.tx_id=TX.tx_id JOIN BLOCKS ON TX.block_id=BLOCKS.block_id 
+WHERE address="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa" AND time<1306886400;
+

@@ -77,32 +77,32 @@ public class Neo4jBalanceTest
 	}
 	
     @Test
- 	public void testNeo4jBalance_0() {
+ 	public void testBalance_0() {
     	this.calculateBalance();
   	}
     
     @Test
- 	public void testNeo4jBalance_1() {
+ 	public void testBalance_1() {
     	this.calculateBalance();
   	}
     
     @Test
- 	public void testNeo4jBalance_2() {
+ 	public void testBalance_2() {
     	this.calculateBalance();
   	}
     
     @Test
- 	public void testNeo4jBalance_3() {
+ 	public void testBalance_3() {
     	this.calculateBalance();
   	}
     
     @Test
- 	public void testNeo4jBalance_4() {
+ 	public void testBalance_4() {
     	this.calculateBalance();
   	}
     
     @Test
- 	public void testNeo4jBalance_5() {
+ 	public void testBalance_5() {
     	this.calculateBalance();
   	}
 	
