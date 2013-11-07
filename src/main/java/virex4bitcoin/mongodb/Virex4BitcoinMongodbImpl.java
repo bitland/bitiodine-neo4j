@@ -63,7 +63,7 @@ public class Virex4BitcoinMongodbImpl implements Virex4Bitcoin{
 				.get("result");
 		
 		if (!result.isEmpty())
-			balance = (long) ((DBObject) result.get(0)).get("balance");
+			balance = (long) ((BasicDBObject) result.get(0)).getLong("balance");
 		
 		return new Long(balance); 
 	}
