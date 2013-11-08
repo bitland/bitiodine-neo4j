@@ -1,16 +1,17 @@
-package virex4bitcoin.test.sqlite;
+package virex4bitcoin.test;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.logging.Logger;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.sqlite.SQLiteJDBCLoader;
@@ -19,8 +20,9 @@ import virex4bitcoin.Virex4Bitcoin;
 import virex4bitcoin.sqlite.Virex4BitcoinSqliteImpl;
 
 @RunWith(Parameterized.class)
-public class SqliteBalanceTest {
-		private static final String SQLITE_PATH="../blockchain/blockchain.sqlite";
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class SqliteBalanceTest extends Virex4BitcoinTest{
+		private static final String SQLITE_PATH="../blockchain/blockchain_small_ext.sqlite";
 	
 		final static Logger logger = Logger.getLogger("Neo4jBalanceTest");
 				
@@ -30,8 +32,13 @@ public class SqliteBalanceTest {
 	    private String address;
 	    private Long attime;
 	    
+	    public SqliteBalanceTest(String address, long attime){
+	    	this.address=address;
+	    	this.attime= new Long(attime);
+	    }
+	    
 		@BeforeClass 
-		public static void startGraphDb(){
+		public static void startup(){
 			logger.info("starting mongoClient...");
 		    try {
 		    	if (!SQLiteJDBCLoader.isNativeMode())
@@ -46,13 +53,8 @@ public class SqliteBalanceTest {
 	        virex4bitcoin = new Virex4BitcoinSqliteImpl(sqliteConnection);
 		}
 		
-		private static void manageException(Exception e){
-			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-		    System.exit(0);
-		}
-		
 		@AfterClass 
-		public static void shutdownGraphDb(){
+		public static void shutdown(){
 			logger.info("shutting down sqliteConnection...");
 			try {
 				sqliteConnection.close();
@@ -60,29 +62,17 @@ public class SqliteBalanceTest {
 				manageException(e);
 			}
 		}
-	    
-	    public SqliteBalanceTest(String address, long attime){
-	    	this.address=address;
-	    	this.attime= new Long(attime);
-	    }
+			
+		private static void manageException(Exception e){
+			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+		    System.exit(0);
+		}
 	    
 	    @Parameters
 	    public static Collection<Object[]> testSet(){
-	    	return Arrays.asList(new Object[][] {
-	    			{"1Q6DgPKUn1zciWKye9A5UkXWRTmupqFt3", 1383264000},
-	    			{"1Q6DgPKUn1zciWKye9A5UkXWRTmupqFt3", 1306886400},
-	    			{"1Q6DgPKUn1zciWKye9A5UkXWRTmupqFt3", 1233446400},
-	    			{"1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", 1383264000},
-	    			{"1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", 1306886400},
-	    			{"1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", 1233446400},
-	    			{"1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp", 1383264000},
-	    			{"1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp", 1306886400},
-	    			{"1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp", 1233446400},
-	    	});
+	    	return Virex4BitcoinTest.testSet();
 	    }
 	    
-
-		
 		private void calculateBalance(){
 	    	System.out.println("testNeo4jBalance address:"+address+" at time:"+attime+"...");
 		   	Long balance = virex4bitcoin.balance(address,attime);

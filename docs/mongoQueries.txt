@@ -1,7 +1,24 @@
+db.balances.drop();
+db.transactions.find().forEach(
+	function(transaction) {
+		for (var i=0; i<transaction.participants.length; i++){
+			db.balances.update(
+				{"address": transaction.participants[i].address, 
+				 "time":transaction.time},
+				{$inc: {"balance":transaction.participants[i].value}},
+				{upsert: true}
+			); 
+		}	
+
+	}
+);
+
+
+*** Balance at time ***
 db.transactions.aggregate(
 	{$match: {
-		"participants.address":"1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-		time:{$lte: 1317034821}
+		"participants.address":"1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp",
+		time:{$lte: 1383264000}
 	}},
 	{$project: {
 		_id:0, "participants":1,
@@ -13,25 +30,42 @@ db.transactions.aggregate(
 		balance: {$sum: "$participants.value"},
 	}},
 	{$match: {
-		"_id":"1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+		"_id":"1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp"
 	}},
 	{$project: {
 		_id:0, "balance":1,
 	}}
 )
 
- 		
- 		
- 		
- 		
- 		
- 		
- 		
- 		
- 		
- 		
- 		
- 		
+
+*** Example for elemMatch ***
+db.transactions.aggregate(
+	{$match: {
+		participants: {
+			$elemMatch: { 
+				address:"1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp", 
+				value:{$lte: 0}
+			}
+		},
+		time:{$lte: 1383264000},
+
+	}},
+	{$project: {
+		_id:0, "participants":1,
+	}},
+	{$unwind: "$participants"
+	},
+	{$group: {
+		_id: "$participants.address",
+		balance: {$sum: "$participants.value"},
+	}},
+	{$match: {
+		"_id":"1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp"
+	}},
+	{$project: {
+		_id:0, "balance":1,
+	}}
+)	
  		
  		
  		

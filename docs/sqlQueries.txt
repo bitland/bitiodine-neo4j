@@ -1,8 +1,23 @@
-SELECT sum(txout_value) AS pos
+*** txextended creation ***
+CREATE TABLE txextended AS
+SELECT TX.tx_id,tx_hash,time,txout_value,address
 FROM TXOUT JOIN TX ON TXOUT.tx_id=TX.tx_id JOIN BLOCKS ON TX.block_id=BLOCKS.block_id 
-WHERE address="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa" AND time<1306886400
+UNION ALL
+SELECT TX.tx_id,tx_hash,time,-txout_value AS txout_value,address
+FROM TXIN LEFT JOIN TXOUT ON TXIN.txout_id=TXOUT.txout_id JOIN TX ON TXIN.tx_id=TX.tx_id JOIN BLOCKS ON TX.block_id=BLOCKS.block_id;
+CREATE INDEX x_txextended_tx_id ON txextended(tx_id);
+CREATE INDEX x_txextended_address ON txextended(address);
+CREATE INDEX x_txextended_time ON txextended(time DESC);
+CREATE INDEX x_txextended_address_time ON txextended(address,time DESC);
 
-SELECT ifnull(sum(-txout_value),0) AS neg
-FROM TXIN LEFT JOIN TXOUT ON TXIN.txout_id=TXOUT.txout_id JOIN TX ON TXOUT.tx_id=TX.tx_id JOIN BLOCKS ON TX.block_id=BLOCKS.block_id 
-WHERE address="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa" AND time<1306886400;
+*** Address balance ***
+SELECT ifnull(sum(txout_value),0) AS balance
+FROM TXEXTENDED 
+WHERE address="159FTr7Gjs2Qbj4Q5q29cvmchhqymQA7of" AND time<1306886400
 
+*** Active addresses ***
+SELECT address, count(txout_value) AS activity
+FROM TXEXTENDED 
+GROUP BY address
+ORDER BY activity DESC
+LIMIT 10;

@@ -36,22 +36,16 @@ public class Virex4BitcoinSqliteImpl implements Virex4Bitcoin {
 	@Override
 	public Long balance(String address, Long attime) {
 		long balance = 0;
-		String posquery = "SELECT sum(txout_value) AS POS "
-				+ "FROM TXOUT JOIN TX ON TXOUT.tx_id=TX.tx_id JOIN BLOCKS ON TX.block_id=BLOCKS.block_id "
-				+ "WHERE address=\""+address+"\" AND time<"+attime;
-		String negquery = "SELECT ifnull(sum(-txout_value),0) AS NEG "
-				+ "FROM TXIN LEFT JOIN TXOUT ON TXIN.txout_id=TXOUT.txout_id JOIN TX ON TXOUT.tx_id=TX.tx_id JOIN BLOCKS ON TX.block_id=BLOCKS.block_id "
+		String query = "SELECT sum(txout_value) AS balance "
+				+ "FROM TXEXTENDED "
 				+ "WHERE address=\""+address+"\" AND time<"+attime;
 		try {
 			Statement stmt = sqliteConnection.createStatement();
-			ResultSet rs = stmt.executeQuery(posquery);
-			Long pos = rs.getLong("POS");
-			rs = stmt.executeQuery(negquery);
-			balance = pos - rs.getLong("NEG");
+			ResultSet rs = stmt.executeQuery(query);
+			balance = rs.getLong("balance");
 			stmt.close();
 		} catch (SQLException e) {
-			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-		    System.exit(0);
+			e.printStackTrace();
 		};
 		return new Long(balance);
 	}

@@ -8,14 +8,14 @@ client = MongoClient('localhost', 27017)
 db = client.virex4bitcoin
 
 # Sqlite configuration
-connection = sqlite3.connect("/Users/giuseppe/git/blockchain/blockchain.sqlite")
+connection = sqlite3.connect("/Users/giuseppe/git/blockchain/blockchain_small.sqlite")
 connection.row_factory = sqlite3.Row
 cursor = connection.cursor()  
 
 
 # Start transaction, set to 1 to start from the beginning
-start=db.transactions.find().count()+1
-#start=1
+start=1
+#start=db.transactions.find().count()+1
 if (start <= 1):
     db.drop_collection('transactions')
     start=1
@@ -33,7 +33,7 @@ def txrow2transaction(row):
     transaction = {"tx_id": row['tx_id'],
                    "hash" : row['tx_hash'],
                    "time": row['time'],
-                   "participants": list(map(inoutrow2inouts, cursor2.execute("SELECT address,txout_value,1 AS sign FROM TXOUT WHERE tx_id=? UNION SELECT address,txout_value,-1 AS sign FROM TXIN LEFT JOIN TXOUT ON TXIN.txout_id=TXOUT.txout_id WHERE TXIN.tx_id=?;", (txid,txid,) ).fetchall())),
+                   "participants": list(map(inoutrow2inouts, cursor2.execute("SELECT address,txout_value,1 AS sign FROM TXOUT WHERE tx_id=? UNION ALL SELECT address,txout_value,-1 AS sign FROM TXIN LEFT JOIN TXOUT ON TXIN.txout_id=TXOUT.txout_id WHERE TXIN.tx_id=?;", (txid,txid,) ).fetchall())),
                  }
     return transaction
 
@@ -45,7 +45,8 @@ def inoutrow2inouts(row):
 
 
 pagesize = 100000
-rowcount = 25529367-(start-1) #cursor.execute("SELECT COUNT(*) AS COUNT FROM TX JOIN BLOCKS ON TX.block_id=BLOCKS.block_id").fetchone()['COUNT']-(start-1)
+rowcount = 25529367-(start-1) 
+rowcount = cursor.execute("SELECT COUNT(*) AS COUNT FROM TX JOIN BLOCKS ON TX.block_id=BLOCKS.block_id").fetchone()['COUNT']-(start-1)
 inserted = 0
 print("Importing ", rowcount ," transactions")
 
